@@ -2,7 +2,7 @@
 
 import React, { useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { OrbitControls, Sky } from '@react-three/drei';
+import { Environment, OrbitControls, Sky } from '@react-three/drei';
 import * as THREE from 'three';
 import Cow from './countryComponents/Cow';
 import Fence from './countryComponents/Fence';
@@ -36,13 +36,15 @@ export default function FarmScene() {
         <Sky sunPosition={[100, 20, 100]} />
         
         {/* Ground */}
-        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.5, 0]} receiveShadow>
+        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]} receiveShadow>
           <planeGeometry args={[30, 30]} />
-          <meshStandardMaterial color="#7cfc00" />
+          <meshStandardMaterial color="#389413" />
         </mesh>
         
         {/* Farm elements */}
-        <Cow />
+        <Cow 
+        position={[0, 0, 0]}
+        scale = {0.5}/>
         
         {/* Fences */}
         <Fence  />
