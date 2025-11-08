@@ -15,7 +15,7 @@ export default function Navigation({ onLoginClick }) {
       <div className="max-w-7xl mx-auto px-0px py-4 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
-          <img src="/mood_header.png" className="w-100 "></img>
+          <img src="/web_assets/mood_header.png" className="w-100 "></img>
 
         </Link>
 
