@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Link from "next/link"
 
 export default function Gallery() {
   const [hoveredIndex, setHoveredIndex] = useState(null)
@@ -11,26 +12,34 @@ export default function Gallery() {
       genre: "Jazz / Blues",
       color: "from-blue-900 to-amber-900",
       emoji: "🎺",
+      path: "/farm",
     },
     {
       name: "Cyber City",
       genre: "EDM / Electronic",
       color: "from-purple-900 to-pink-900",
       emoji: "🌆",
+      path: "/cyber-city",
     },
     {
       name: "Enchanted Forest",
       genre: "Indie / Folk",
       color: "from-green-900 to-emerald-900",
       emoji: "🌲",
+      path: "/enchanted-forest",
     },
     {
       name: "Grand Concert Hall",
       genre: "Classical",
       color: "from-yellow-900 to-red-900",
       emoji: "🎼",
+      path: "/concert-hall",
     },
   ]
+
+  const handleNavigate = (path) => {
+    window.location.href = path
+  }
 
   return (
     <section id="gallery" className="py-20 bg-background">
@@ -74,7 +83,10 @@ export default function Gallery() {
                   {world.genre}
                 </p>
                 {hoveredIndex === index && (
-                  <button className="mt-3 px-4 py-2 bg-accent text-background rounded-lg text-sm font-semibold hover:bg-accent/90 transition animate-slide-up">
+                  <button 
+                    onClick={() => handleNavigate(world.path)}
+                    className="mt-3 px-4 py-2 bg-accent text-background rounded-lg text-sm font-semibold hover:bg-accent/90 transition animate-slide-up"
+                  >
                     Explore World
                   </button>
                 )}
