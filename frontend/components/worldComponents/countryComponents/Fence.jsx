@@ -2,7 +2,7 @@ import React, { useRef } from 'react'
 import { useGLTF } from '@react-three/drei'
 
 export function Fence(props) {
-  const { nodes, materials } = useGLTF('/Fence.glb')
+  const { nodes, materials } = useGLTF('/country_world/Fence.glb')
   return (
     <group {...props} dispose={null}>
       <mesh
@@ -16,3 +16,5 @@ export function Fence(props) {
 }
 
 useGLTF.preload('/Fence.glb')
+
+export default Fence;

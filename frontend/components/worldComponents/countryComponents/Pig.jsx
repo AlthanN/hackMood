@@ -2,7 +2,7 @@ import React, { useRef } from 'react'
 import { useGLTF } from '@react-three/drei'
 
 export function Pig(props) {
-  const { nodes, materials } = useGLTF('/Pig.glb')
+  const { nodes, materials } = useGLTF('/country_world/Pig.glb')
   return (
     <group {...props} dispose={null}>
       <mesh
@@ -16,3 +16,5 @@ export function Pig(props) {
 }
 
 useGLTF.preload('/Pig.glb')
+
+export default Pig;

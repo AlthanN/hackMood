@@ -2,7 +2,7 @@ import React, { useRef } from 'react'
 import { useGLTF } from '@react-three/drei'
 
 export function Tree(props) {
-  const { nodes, materials } = useGLTF('/Tree.glb')
+  const { nodes, materials } = useGLTF('/country_world/Tree.glb')
   return (
     <group {...props} dispose={null}>
       <mesh
@@ -22,3 +22,5 @@ export function Tree(props) {
 }
 
 useGLTF.preload('/Tree.glb')
+
+export default Tree;

@@ -3,7 +3,7 @@ import React, { useRef } from 'react'
 import { useGLTF } from '@react-three/drei'
 
 export function Soda(props) {
-  const { nodes, materials } = useGLTF('/Soda Can.glb')
+  const { nodes, materials } = useGLTF('/country_world/Soda Can.glb')
   return (
     <group {...props} dispose={null}>
       <mesh
@@ -29,3 +29,5 @@ export function Soda(props) {
 }
 
 useGLTF.preload('/Soda Can.glb')
+
+export default Soda;
