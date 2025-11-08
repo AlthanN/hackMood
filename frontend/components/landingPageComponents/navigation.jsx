@@ -4,6 +4,10 @@ import { useState } from "react"
 import Link from "next/link"
 import { Menu, X } from "lucide-react"
 
+function handleLogin() {
+  window.location.href = "http://localhost:8888/login";
+}
+
 export default function Navigation({ onLoginClick }) {
   const [isOpen, setIsOpen] = useState(false)
 

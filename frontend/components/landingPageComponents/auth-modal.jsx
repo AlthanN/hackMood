@@ -1,7 +1,9 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { X, Eye, EyeOff, Loader2 } from "lucide-react"
+
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8888'
 
 export default function AuthModal({ onClose }) {
   const [isSignUp, setIsSignUp] = useState(false)
@@ -12,6 +14,57 @@ export default function AuthModal({ onClose }) {
     password: "",
     confirmPassword: "",
   })
+
+  // Check for Spotify auth tokens in URL hash
+  useEffect(() => {
+    const hash = window.location.hash.substring(1)
+    const params = new URLSearchParams(hash)
+    const access_token = params.get('access_token')
+    const refresh_token = params.get('refresh_token')
+    const error = params.get('error')
+
+    if (error) {
+      console.error('Spotify auth error:', error)
+      alert('Authentication failed. Please try again.')
+      window.location.hash = ''
+    } else if (access_token) {
+      // Store tokens in localStorage
+      localStorage.setItem('spotify_access_token', access_token)
+      if (refresh_token) {
+        localStorage.setItem('spotify_refresh_token', refresh_token)
+      }
+
+      // Clear hash from URL
+      window.location.hash = ''
+
+      // Fetch user profile
+      fetchSpotifyProfile(access_token)
+    }
+  }, [])
+
+  const fetchSpotifyProfile = async (token) => {
+    try {
+      const response = await fetch('https://api.spotify.com/v1/me', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+
+      if (response.ok) {
+        const profile = await response.json()
+        console.log('Logged in as:', profile.display_name)
+        localStorage.setItem('spotify_user', JSON.stringify(profile))
+
+        // Close modal and potentially redirect or update UI
+        onClose()
+        // You can add a callback here to notify parent component of successful login
+      } else {
+        console.error('Failed to fetch profile')
+      }
+    } catch (error) {
+      console.error('Error fetching profile:', error)
+    }
+  }
 
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -24,13 +77,22 @@ export default function AuthModal({ onClose }) {
     }, 1500)
   }
 
+  const handleSpotifyAuth = () => {
+    // Redirect to backend Spotify auth endpoint
+    window.location.href = `${BACKEND_URL}/login`
+  }
+
   const handleSocialAuth = (provider) => {
-    setIsLoading(true)
-    console.log(`Authenticating with ${provider}`)
-    setTimeout(() => {
-      setIsLoading(false)
-      onClose()
-    }, 1500)
+    if (provider === "Spotify") {
+      handleSpotifyAuth()
+    } else {
+      setIsLoading(true)
+      console.log(`Authenticating with ${provider}`)
+      setTimeout(() => {
+        setIsLoading(false)
+        onClose()
+      }, 1500)
+    }
   }
 
   return (
@@ -53,21 +115,33 @@ export default function AuthModal({ onClose }) {
             {isSignUp ? "Join SoundScape and discover your world" : "Sign in to your account"}
           </p>
 
-          <div className="grid grid-cols-2 gap-3 mb-6">
+          <div className="space-y-3 mb-6">
             <button
-              onClick={() => handleSocialAuth("Google")}
+              onClick={() => handleSocialAuth("Spotify")}
               disabled={isLoading}
-              className="px-4 py-2 border border-foreground/20 rounded-lg font-medium text-foreground hover:bg-foreground/10 transition disabled:opacity-50"
+              className="w-full px-4 py-3 bg-[#1DB954] hover:bg-[#1ed760] text-white rounded-lg font-semibold transition disabled:opacity-50 flex items-center justify-center gap-2"
             >
-              Google
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>
+              </svg>
+              Continue with Spotify
             </button>
-            <button
-              onClick={() => handleSocialAuth("Discord")}
-              disabled={isLoading}
-              className="px-4 py-2 border border-foreground/20 rounded-lg font-medium text-foreground hover:bg-foreground/10 transition disabled:opacity-50"
-            >
-              Discord
-            </button>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                onClick={() => handleSocialAuth("Google")}
+                disabled={isLoading}
+                className="px-4 py-2 border border-foreground/20 rounded-lg font-medium text-foreground hover:bg-foreground/10 transition disabled:opacity-50"
+              >
+                Google
+              </button>
+              <button
+                onClick={() => handleSocialAuth("Discord")}
+                disabled={isLoading}
+                className="px-4 py-2 border border-foreground/20 rounded-lg font-medium text-foreground hover:bg-foreground/10 transition disabled:opacity-50"
+              >
+                Discord
+              </button>
+            </div>
           </div>
 
           <div className="relative mb-6">
