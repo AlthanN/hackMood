@@ -34,7 +34,7 @@ export default function CampPage() {
       </button>
 
       <Canvas
-        camera={{ position: [0, 2, 12], fov: 75 }}
+        camera={{ position: [-1.2, 0.3, 5], fov: 75 }}
         shadows
         gl={{ alpha: false }}
       >

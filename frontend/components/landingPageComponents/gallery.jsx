@@ -19,14 +19,14 @@ export default function Gallery() {
       genre: "EDM / Electronic",
       color: "from-purple-900 to-pink-900",
       emoji: "🌆",
-      path: "/camp",
+      path: "/ran",
     },
     {
       name: "Enchanted Forest",
       genre: "Indie / Folk",
       color: "from-green-900 to-emerald-900",
       emoji: "🌲",
-      path: "/enchanted-forest",
+      path: "/camp",
     },
     {
       name: "Grand Concert Hall",
