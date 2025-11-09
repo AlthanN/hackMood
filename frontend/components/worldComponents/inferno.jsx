@@ -324,6 +324,5 @@ export default function InfernoScene() {
           maxPolarAngle={Math.PI / 2.2}
         />
       </Canvas>
-    </div>
   );
 }

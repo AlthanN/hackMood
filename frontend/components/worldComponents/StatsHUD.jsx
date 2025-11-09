@@ -9,7 +9,7 @@ const moodToWorldMap = {
   sad: '/city',
   energetic: '/beach',
   angry: '/inferno',
-  romantic: '/romantic',
+  romantic: '/sakura',
   unknown: '/camp',
 };
 
@@ -24,8 +24,17 @@ export default function StatsHUD() {
   const [searchInput, setSearchInput] = useState('');
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchError, setSearchError] = useState('');
+  const [hudVisible, setHudVisible] = useState(true);
   const searchParams = useSearchParams();
   const router = useRouter();
+
+  useEffect(() => {
+    // Restore searched friend ID from localStorage on mount
+    const storedFriendId = localStorage.getItem('searchedFriendId');
+    if (storedFriendId) {
+      setSearchInput(storedFriendId);
+    }
+  }, []);
 
   useEffect(() => {
     // Try to get mood data from URL query parameters first
@@ -61,6 +70,8 @@ export default function StatsHUD() {
         distribution: distribution,
       };
       setMoodData(moodData);
+      // Store in localStorage for persistence across navigation
+      localStorage.setItem('currentMoodData', JSON.stringify(moodData));
 
       // Store current mood in database if user has no mood stored yet
       storeCurrentMoodIfEmpty(moodData.moodKey);
@@ -71,10 +82,13 @@ export default function StatsHUD() {
     } else {
       // Fallback to localStorage if URL params not available
       try {
-        const storedMood = localStorage.getItem('userMoodResult');
+        const storedMood = localStorage.getItem('userMoodResult') || localStorage.getItem('currentMoodData');
         if (storedMood) {
           const moodResult = JSON.parse(storedMood);
           setMoodData(moodResult);
+          // Still fetch tracks and old mood
+          fetchRecentlyListenedTracks();
+          fetchOldMood();
         }
       } catch (error) {
         console.error('Error parsing mood data:', error);
@@ -180,7 +194,18 @@ export default function StatsHUD() {
 
     const worldRoute = moodToWorldMap[oldMood.toLowerCase()] || '/camp';
     console.log(`Navigating to world for previous mood: ${oldMood} (route: ${worldRoute})`);
+    // Store current world before navigating
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('previousWorldPath', window.location.pathname);
+    }
     router.push(worldRoute);
+  };
+
+  const handleHomeButton = () => {
+    // Clear searched friend ID when going home
+    localStorage.removeItem('searchedFriendId');
+    setSearchInput('');
+    router.push('/');
   };
 
   const handleSearchUser = async (e) => {
@@ -214,6 +239,11 @@ export default function StatsHUD() {
         const userMood = moodData.data.emotion.toLowerCase();
         const worldRoute = moodToWorldMap[userMood] || '/camp';
         console.log(`Navigating to world for user ${searchInput}: ${userMood} (route: ${worldRoute})`);
+        // Store current world and friend ID before navigating
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('previousWorldPath', window.location.pathname);
+          localStorage.setItem('searchedFriendId', searchInput.trim());
+        }
         router.push(worldRoute);
       } else {
         setSearchError('User has no mood data');
@@ -265,10 +295,6 @@ export default function StatsHUD() {
     }
   };
 
-  if (!moodData) {
-    return null;
-  }
-
   return (
     <>
       <style>{`
@@ -287,57 +313,79 @@ export default function StatsHUD() {
           background: #1ed760;
         }
       `}</style>
+
+      {/* Show/Hide HUD Button - Bottom Left */}
+      <button
+        onClick={() => setHudVisible(!hudVisible)}
+        style={styles.toggleButton}
+        title={hudVisible ? 'Hide HUD' : 'Show HUD'}
+      >
+        {hudVisible ? 'Hide' : 'Show'}
+      </button>
+
+      {hudVisible && (
       <div style={styles.hudContainer}>
         {/* Left side - Previous Mood Button and Mood Analysis with distribution */}
         <div style={styles.leftPanelContainer}>
-          <div style={styles.leftPanel}>
-            <div
-              style={{
-                ...styles.panel,
-                ...styles.leftPanelContent,
-                ...(expandedMood ? {} : styles.panelCollapsed)
-              }}
-              onClick={() => setExpandedMood(!expandedMood)}
-            >
-              <div style={styles.title}>Mood Analysis</div>
-              {expandedMood && (
-                <>
-                  <div style={styles.stat}>
-                    <span style={styles.label}>Detected Mood:</span>
-                    <span style={styles.value}>{moodData.category}</span>
-                  </div>
-                  <div style={styles.stat}>
-                    <span style={styles.label}>Confidence:</span>
-                    <span style={styles.value}>{moodData.confidence}%</span>
-                  </div>
-
-                  {/* Mood Distribution */}
-                  {moodData.distribution && moodData.distribution.length > 0 && (
-                    <div style={styles.distributionSection}>
-                      <div style={styles.distributionTitle}>Mood Breakdown</div>
-                      {moodData.distribution.map((item, index) => (
-                        <div key={index} style={styles.distributionItem}>
-                          <span style={styles.moodLabel}>{item.mood}</span>
-                          <span style={styles.moodPercentage}>{item.percentage}%</span>
-                        </div>
-                      ))}
+          {moodData && (
+            <div style={styles.leftPanel}>
+              <div
+                style={{
+                  ...styles.panel,
+                  ...styles.leftPanelContent,
+                  ...(expandedMood ? {} : styles.panelCollapsed)
+                }}
+                onClick={() => setExpandedMood(!expandedMood)}
+              >
+                <div style={styles.title}>Mood Analysis</div>
+                {expandedMood && (
+                  <>
+                    <div style={styles.stat}>
+                      <span style={styles.label}>Detected Mood:</span>
+                      <span style={styles.value}>{moodData.category}</span>
                     </div>
-                  )}
-                </>
-              )}
-            </div>
-          </div>
+                    <div style={styles.stat}>
+                      <span style={styles.label}>Confidence:</span>
+                      <span style={styles.value}>{moodData.confidence}%</span>
+                    </div>
 
-          {/* Previous Mood Button - Right of Mood Analysis */}
-          {oldMood && (
-            <button
-              onClick={handleVisitPreviousMood}
-              style={styles.visitPreviousMoodButton}
-              title={`Enter your ${oldMood} world`}
-            >
-              Previous Mood: {oldMood.charAt(0).toUpperCase() + oldMood.slice(1)}
-            </button>
+                    {/* Mood Distribution */}
+                    {moodData.distribution && moodData.distribution.length > 0 && (
+                      <div style={styles.distributionSection}>
+                        <div style={styles.distributionTitle}>Mood Breakdown</div>
+                        {moodData.distribution.map((item, index) => (
+                          <div key={index} style={styles.distributionItem}>
+                            <span style={styles.moodLabel}>{item.mood}</span>
+                            <span style={styles.moodPercentage}>{item.percentage}%</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            </div>
           )}
+
+          {/* Previous Mood Button, Back Button, and Home Button - Right of Mood Analysis */}
+          <div style={styles.buttonGroup}>
+            {oldMood && (
+              <button
+                onClick={handleVisitPreviousMood}
+                style={styles.visitPreviousMoodButton}
+                title={`Enter your ${oldMood} world`}
+              >
+                Previous Mood: {oldMood.charAt(0).toUpperCase() + oldMood.slice(1)}
+              </button>
+            )}
+            <button
+              onClick={handleHomeButton}
+              style={styles.homeButton}
+              title="Return to home"
+            >
+              Home
+            </button>
+          </div>
         </div>
 
         {/* Right side - Search Bar and Recently Listened Tracks */}
@@ -351,7 +399,7 @@ export default function StatsHUD() {
                 setSearchInput(e.target.value);
                 setSearchError('');
               }}
-              placeholder="Enter Spotify user ID"
+              placeholder="Enter Friend User ID"
               style={styles.searchInput}
               disabled={searchLoading}
             />
@@ -365,46 +413,54 @@ export default function StatsHUD() {
             {searchError && <div style={styles.searchError}>{searchError}</div>}
           </form>
 
-          <div style={styles.rightPanel}>
-            <div
-              style={{
-                ...styles.panel,
-                ...(expandedTracks ? styles.rightPanelContent : styles.rightPanelContentCollapsed)
-              }}
-              onClick={() => setExpandedTracks(!expandedTracks)}
-            >
-              <div style={styles.title}>Top 50 Tracks</div>
+          {moodData && (
+            <div style={styles.rightPanel}>
+              <div
+                style={{
+                  ...styles.panel,
+                  ...(expandedTracks ? styles.rightPanelContent : styles.rightPanelContentCollapsed)
+                }}
+                onClick={() => setExpandedTracks(!expandedTracks)}
+              >
+                <div style={styles.title}>Top 50 Tracks</div>
 
-              {expandedTracks && (
-                <>
-                  {tracksData && tracksData.length > 0 ? (
-                    <div className="stats-tracks-list" style={styles.tracksList}>
-                      {tracksData.map((track, index) => (
-                        <div key={index} style={styles.trackItem}>
-                          <span style={styles.trackNumber}>{index + 1}.</span>
-                          <div style={styles.trackInfo}>
-                            <div style={styles.trackName}>{track.name}</div>
-                            <div style={styles.trackArtist}>{track.artist}</div>
+                {expandedTracks && (
+                  <>
+                    {tracksData && tracksData.length > 0 ? (
+                      <div className="stats-tracks-list" style={styles.tracksList}>
+                        {tracksData.map((track, index) => (
+                          <div key={index} style={styles.trackItem}>
+                            <span style={styles.trackNumber}>{index + 1}.</span>
+                            <div style={styles.trackInfo}>
+                              <div style={styles.trackName}>{track.name}</div>
+                              <div style={styles.trackArtist}>{track.artist}</div>
+                            </div>
                           </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div style={styles.loadingText}>Loading tracks...</div>
-                  )}
-                </>
-              )}
+                        ))}
+                      </div>
+                    ) : (
+                      <div style={styles.loadingText}>Loading tracks...</div>
+                    )}
+                  </>
+                )}
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
-      {/* Spotify User ID - Bottom Right */}
-      {spotifyUserId && (
-        <div style={styles.spotifyUserIdContainer}>
-          <span style={styles.spotifyUserIdText}>{spotifyUserId}</span>
+      {/* User Info - Bottom Right */}
+      <div style={styles.userInfoContainer}>
+        <div style={styles.infoBox}>
+          <div style={styles.infoLabel}>My ID:</div>
+          <div style={styles.infoValue}>{spotifyUserId || 'N/A'}</div>
         </div>
-      )}
+        <div style={styles.infoBox}>
+          <div style={styles.infoLabel}>Friend's ID:</div>
+          <div style={styles.infoValue}>{searchInput || 'Not visiting a world'}</div>
+        </div>
+      </div>
     </div>
+      )}
     </>
   );
 }
@@ -421,13 +477,14 @@ const styles = {
     zIndex: 100,
     display: 'flex',
     justifyContent: 'space-between',
-    padding: '20px',
+    padding: '10px',
     boxSizing: 'border-box',
+    userSelect: 'none',
   },
   leftPanelContainer: {
     pointerEvents: 'auto',
     display: 'flex',
-    gap: '12px',
+    gap: '8px',
     alignItems: 'flex-start',
   },
   leftPanel: {
@@ -436,7 +493,7 @@ const styles = {
   rightPanelContainer: {
     pointerEvents: 'auto',
     display: 'flex',
-    gap: '12px',
+    gap: '8px',
     alignItems: 'flex-start',
   },
   rightPanel: {
@@ -448,7 +505,7 @@ const styles = {
     background: 'rgba(255, 255, 255, 0.05)',
     border: '1px solid rgba(0, 0, 0, 0.1)',
     borderRadius: '12px',
-    padding: '16px 20px',
+    padding: '12px 16px',
     backdropFilter: 'blur(10px)',
     boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
     minWidth: '280px',
@@ -594,25 +651,70 @@ const styles = {
     fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto',
     whiteSpace: 'nowrap',
   },
-  spotifyUserIdContainer: {
+  buttonGroup: {
+    pointerEvents: 'auto',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '8px',
+    alignItems: 'flex-start',
+  },
+  homeButton: {
+    pointerEvents: 'auto',
+    padding: '12px 24px',
+    background: 'rgba(255, 255, 255, 0.1)',
+    border: '2px solid rgba(255, 255, 255, 0.3)',
+    borderRadius: '12px',
+    color: '#000',
+    fontSize: '14px',
+    fontWeight: '600',
+    cursor: 'pointer',
+    backdropFilter: 'blur(10px)',
+    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+    transition: 'all 0.3s ease',
+    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto',
+    whiteSpace: 'nowrap',
+  },
+  userInfoContainer: {
     position: 'fixed',
     bottom: '20px',
     right: '20px',
     zIndex: 100,
     pointerEvents: 'auto',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '12px',
   },
-  spotifyUserIdText: {
-    color: '#fff',
-    fontSize: '12px',
-    fontWeight: '500',
+  infoBox: {
+    background: 'rgba(255, 255, 255, 0.05)',
+    border: '1px solid rgba(255, 255, 255, 0.2)',
+    borderRadius: '8px',
+    padding: '12px 16px',
+    backdropFilter: 'blur(10px)',
+    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+    minWidth: '200px',
+  },
+  infoLabel: {
+    color: '#000',
+    fontSize: '11px',
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: '0.5px',
+    marginBottom: '4px',
     fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto',
+  },
+  infoValue: {
+    color: '#000',
+    fontSize: '13px',
+    fontWeight: '500',
+    fontFamily: 'monospace',
+    wordBreak: 'break-all',
   },
   searchBarContainer: {
     pointerEvents: 'auto',
     display: 'flex',
     gap: '8px',
-    alignItems: 'flex-start',
-    flexDirection: 'column',
+    alignItems: 'center',
+    flexDirection: 'row',
   },
   searchInput: {
     padding: '10px 16px',
@@ -649,5 +751,27 @@ const styles = {
     fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto',
     textAlign: 'center',
     maxWidth: '220px',
+  },
+  toggleButton: {
+    position: 'fixed',
+    bottom: '20px',
+    left: '20px',
+    zIndex: 101,
+    pointerEvents: 'auto',
+    padding: '12px 40px',
+    minWidth: '120px',
+    background: 'rgba(255, 255, 255, 0.1)',
+    border: '2px solid rgba(255, 255, 255, 0.3)',
+    borderRadius: '12px',
+    color: '#000',
+    fontSize: '16px',
+    fontWeight: '600',
+    cursor: 'pointer',
+    backdropFilter: 'blur(10px)',
+    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+    transition: 'all 0.3s ease',
+    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto',
+    whiteSpace: 'nowrap',
+    textAlign: 'center',
   },
 };
