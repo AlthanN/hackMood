@@ -4,6 +4,8 @@ import { Bench } from "./sakuraComponents/bench";
 import { Grass } from "./sakuraComponents/grass";
 import { SakuraTree } from "./sakuraComponents/sakuraTree";
 import { useRef, useEffect } from "react";
+import StatsHUD from './StatsHUD';
+
 
 export default function Sakura() {
   const audioRef = useRef();

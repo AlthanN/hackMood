@@ -7,6 +7,13 @@
  * https://developer.spotify.com/documentation/web-api/tutorials/code-flow
  */
 
+// Load environment variables FIRST before requiring anything else
+try {
+  require('dotenv').config();
+} catch (e) {
+  console.log('dotenv not installed, using environment variables directly');
+}
+
 var express = require('express');
 var request = require('request');
 var crypto = require('crypto');
@@ -28,13 +35,6 @@ const corsOptions = {
   methods: ['GET', 'POST'],
   allowedHeaders: ['Content-Type', 'Authorization']
 };
-
-// Try to load dotenv if available
-try {
-  require('dotenv').config();
-} catch (e) {
-  console.log('dotenv not installed, using environment variables directly');
-}
 
 if (!process.env.SPOTIFY_CLIENT_ID || !process.env.SPOTIFY_CLIENT_SECRET) {
   console.error('Error: Spotify credentials not found in environment variables');
