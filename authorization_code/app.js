@@ -15,7 +15,14 @@ var querystring = require('querystring');
 var cookieParser = require('cookie-parser');
 
 const corsOptions = {
-  origin: 'http://localhost:3000',
+  origin: function(origin, callback) {
+    // Allow any localhost origin in development
+    if (!origin || origin.includes('localhost') || origin.includes('127.0.0.1:8888')) {
+      callback(null, true);
+    } else {
+      callback(null, true); // For production, you might want to be more restrictive
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -56,7 +63,16 @@ app.use(express.static(__dirname + '/public'))
 app.get('/login', function(req, res) {
 
   var state = generateRandomString(16);
-  res.cookie(stateKey, state);
+
+  // Set cookie with explicit options to ensure it persists through redirect
+  res.cookie(stateKey, state, {
+    maxAge: 3600000, // 1 hour
+    httpOnly: false, // Allow JavaScript access if needed
+    secure: false, // Set to true in production with HTTPS
+    sameSite: 'Lax'
+  });
+
+  console.log('Setting state cookie:', state);
 
   // your application requests authorization
   var scope = 'user-read-private user-read-email user-top-read user-library-read';
@@ -79,7 +95,17 @@ app.get('/callback', function(req, res) {
   var state = req.query.state || null;
   var storedState = req.cookies ? req.cookies[stateKey] : null;
 
+  console.log('=== CALLBACK DEBUG ===');
+  console.log('Code:', code ? code.substring(0, 10) + '...' : 'null');
+  console.log('State from URL:', state);
+  console.log('State from Cookie:', storedState);
+  console.log('All cookies:', JSON.stringify(req.cookies));
+  console.log('Cookie header:', req.headers['cookie']);
+  console.log('State match result:', state === storedState);
+  console.log('====================');
+
   if (state === null || state !== storedState) {
+    console.error('State mismatch or no state provided');
     res.redirect('/#' +
       querystring.stringify({
         error: 'state_mismatch'
@@ -106,6 +132,9 @@ app.get('/callback', function(req, res) {
         var access_token = body.access_token,
             refresh_token = body.refresh_token;
 
+        console.log('Successfully obtained tokens');
+        console.log('Access token:', access_token ? access_token.substring(0, 20) + '...' : 'null');
+
         var options = {
           url: 'https://api.spotify.com/v1/me',
           headers: { 'Authorization': 'Bearer ' + access_token },
@@ -114,7 +143,11 @@ app.get('/callback', function(req, res) {
 
         // use the access token to access the Spotify Web API
         request.get(options, function(error, response, body) {
-          console.log(body);
+          if (!error) {
+            console.log('User profile fetched successfully:', body.display_name);
+          } else {
+            console.error('Error fetching user profile:', error);
+          }
         });
 
         // we can also pass the token to the browser to make requests from there
@@ -124,6 +157,10 @@ app.get('/callback', function(req, res) {
             refresh_token: refresh_token
           }));
       } else {
+        console.error('Token exchange failed');
+        console.error('Error:', error);
+        console.error('Status:', response ? response.statusCode : 'no response');
+        console.error('Body:', body);
         res.redirect('/#' +
           querystring.stringify({
             error: 'invalid_token'

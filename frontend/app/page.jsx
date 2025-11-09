@@ -10,9 +10,9 @@ import AuthModal from "@/components/landingPageComponents/auth-modal"
 
 export default function Home() {
   const [showAuth, setShowAuth] = useState(false)
-  
+
   const handleLogin = () => {
-    window.location.href = "http://127.0.0.1:8888"
+    window.location.href = 'http://127.0.0.1:8888';
   }
 
   return (

@@ -5,7 +5,8 @@ import Link from "next/link"
 import { Menu, X } from "lucide-react"
 
 function handleLogin() {
-  window.location.href = "http://localhost:8888/login";
+  const backendUrl = 'http://127.0.0.1:8888';
+  window.location.href = backendUrl;
 }
 
 export default function Navigation({ onLoginClick }) {

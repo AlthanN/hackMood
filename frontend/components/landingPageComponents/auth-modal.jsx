@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { X, Eye, EyeOff, Loader2 } from "lucide-react"
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8888'
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://127.0.0.1:8888'
 
 export default function AuthModal({ onClose }) {
   const [isSignUp, setIsSignUp] = useState(false)
@@ -78,8 +78,8 @@ export default function AuthModal({ onClose }) {
   }
 
   const handleSpotifyAuth = () => {
-    // Redirect to backend Spotify auth endpoint
-    window.location.href = `${BACKEND_URL}/login`
+    // Redirect to backend home page
+    window.location.href = BACKEND_URL
   }
 
   const handleSocialAuth = (provider) => {

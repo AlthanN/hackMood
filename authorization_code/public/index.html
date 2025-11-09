@@ -1,105 +1,537 @@
 <!doctype html>
 <html>
   <head>
-    <title>Example of the Authorization Code flow with Spotify</title>
-    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
-    <style type="text/css">
-      #login, #loggedin {
-        display: none;
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>hackMood - Spotify Music Mood Analysis</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
       }
-      .text-overflow {
+
+      body {
+        background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
+        color: #fff;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 600px;
+        width: 100%;
+      }
+
+      /* Login Section */
+      #login {
+        text-align: center;
+        animation: fadeIn 0.6s ease-in;
+      }
+
+      .logo {
+        margin-bottom: 40px;
+      }
+
+      .logo-text {
+        font-size: 36px;
+        font-weight: 800;
+        letter-spacing: -1px;
+        margin-bottom: 8px;
+        background: linear-gradient(135deg, #1DB954 0%, #1ed760 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .logo-subtitle {
+        font-size: 14px;
+        color: #b3b3b3;
+        font-weight: 500;
+      }
+
+      h1 {
+        font-size: 28px;
+        margin-bottom: 12px;
+        font-weight: 700;
+      }
+
+      .subtitle {
+        font-size: 15px;
+        color: #b3b3b3;
+        margin-bottom: 32px;
+        line-height: 1.5;
+      }
+
+      .login-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        padding: 14px 32px;
+        background: linear-gradient(135deg, #1DB954 0%, #1ed760 100%);
+        color: #000;
+        border: none;
+        border-radius: 50px;
+        font-size: 16px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+      }
+
+      .login-btn:hover {
+        transform: scale(1.05);
+        box-shadow: 0 8px 24px rgba(29, 185, 84, 0.4);
+      }
+
+      .login-btn:active {
+        transform: scale(0.98);
+      }
+
+      .spotify-icon {
+        width: 20px;
+        height: 20px;
+      }
+
+      /* Logged In Section */
+      #loggedin {
+        display: none;
+        animation: fadeIn 0.6s ease-in;
+      }
+
+      .profile-card {
+        background: linear-gradient(135deg, rgba(29, 185, 84, 0.1) 0%, rgba(29, 185, 84, 0.05) 100%);
+        border: 1px solid rgba(29, 185, 84, 0.3);
+        border-radius: 16px;
+        padding: 32px;
+        margin-bottom: 24px;
+        backdrop-filter: blur(10px);
+      }
+
+      .profile-header {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        margin-bottom: 24px;
+      }
+
+      .profile-image {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid #1DB954;
+      }
+
+      .profile-info h2 {
+        font-size: 20px;
+        margin-bottom: 4px;
+      }
+
+      .profile-info p {
+        font-size: 14px;
+        color: #b3b3b3;
+      }
+
+      .profile-details {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid rgba(29, 185, 84, 0.2);
+      }
+
+      .detail-item {
+        font-size: 13px;
+      }
+
+      .detail-label {
+        color: #b3b3b3;
+        margin-bottom: 4px;
+        font-weight: 600;
+      }
+
+      .detail-value {
+        color: #1DB954;
+        font-size: 12px;
+        word-break: break-all;
+        font-family: 'Courier New', monospace;
+      }
+
+      .action-buttons {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 24px;
+      }
+
+      .btn {
+        flex: 1;
+        padding: 12px 24px;
+        border: none;
+        border-radius: 50px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .btn-primary {
+        background: #1DB954;
+        color: #000;
+      }
+
+      .btn-primary:hover {
+        background: #1ed760;
+        transform: translateY(-2px);
+      }
+
+      .btn-secondary {
+        background: rgba(29, 185, 84, 0.2);
+        color: #1DB954;
+        border: 1px solid #1DB954;
+      }
+
+      .btn-secondary:hover {
+        background: rgba(29, 185, 84, 0.3);
+      }
+
+      /* Mood Analysis Section */
+      .mood-card {
+        background: linear-gradient(135deg, rgba(29, 185, 84, 0.1) 0%, rgba(29, 185, 84, 0.05) 100%);
+        border: 1px solid rgba(29, 185, 84, 0.3);
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 16px;
+        backdrop-filter: blur(10px);
+      }
+
+      .mood-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 16px;
+      }
+
+      .mood-emoji {
+        font-size: 32px;
+      }
+
+      .mood-title {
+        font-size: 18px;
+        font-weight: 700;
+      }
+
+      .mood-description {
+        font-size: 14px;
+        color: #b3b3b3;
+        margin-bottom: 16px;
+      }
+
+      .progress-bar-container {
+        width: 100%;
+        height: 8px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 4px;
         overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        width: 500px;
+        margin-bottom: 16px;
+      }
+
+      .progress-bar {
+        height: 100%;
+        background: linear-gradient(90deg, #1DB954 0%, #1ed760 100%);
+        border-radius: 4px;
+        transition: width 0.3s ease;
+      }
+
+      .mood-score {
+        font-size: 13px;
+        color: #1DB954;
+        font-weight: 600;
+        margin-bottom: 16px;
+      }
+
+      .distribution-title {
+        font-size: 13px;
+        font-weight: 600;
+        color: #b3b3b3;
+        margin-bottom: 12px;
+      }
+
+      .distribution-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+        font-size: 13px;
+      }
+
+      .distribution-name {
+        color: #fff;
+        text-transform: capitalize;
+      }
+
+      .distribution-bar {
+        flex: 1;
+        height: 4px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 2px;
+        margin: 0 12px;
+        overflow: hidden;
+      }
+
+      .distribution-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #1DB954 0%, #1ed760 100%);
+      }
+
+      .distribution-percent {
+        color: #1DB954;
+        font-weight: 600;
+        min-width: 40px;
+        text-align: right;
+      }
+
+      .info-box {
+        background: rgba(29, 185, 84, 0.15);
+        border-left: 3px solid #1DB954;
+        padding: 12px 16px;
+        border-radius: 8px;
+        font-size: 12px;
+        color: #b3b3b3;
+        margin-top: 16px;
+      }
+
+      .alert {
+        padding: 16px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        font-size: 14px;
+      }
+
+      .alert-info {
+        background: rgba(29, 185, 84, 0.15);
+        border: 1px solid rgba(29, 185, 84, 0.3);
+        color: #1ed760;
+      }
+
+      .alert-danger {
+        background: rgba(255, 64, 64, 0.15);
+        border: 1px solid rgba(255, 64, 64, 0.3);
+        color: #ff4040;
+      }
+
+      .dl-horizontal {
+        display: grid;
+        grid-template-columns: 120px 1fr;
+        gap: 12px;
+        font-size: 13px;
+      }
+
+      dt {
+        color: #b3b3b3;
+        font-weight: 600;
+      }
+
+      dd {
+        color: #fff;
+        word-break: break-all;
+        margin: 0;
+      }
+
+      a {
+        color: #1DB954;
+        text-decoration: none;
+      }
+
+      a:hover {
+        color: #1ed760;
+        text-decoration: underline;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* Loading spinner styles */
+      .loading-spinner {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #0f0f0f;
+        z-index: 9999;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .loading-spinner.active {
+        display: flex;
+      }
+
+      .spinner {
+        width: 60px;
+        height: 60px;
+        border: 4px solid rgba(29, 185, 84, 0.2);
+        border-top: 4px solid #1DB954;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .loading-text {
+        margin-top: 20px;
+        font-size: 16px;
+        color: #1DB954;
+        font-weight: 600;
+      }
+
+      @media (max-width: 600px) {
+        .logo-text {
+          font-size: 28px;
+        }
+
+        h1 {
+          font-size: 24px;
+        }
+
+        .profile-details {
+          grid-template-columns: 1fr;
+        }
+
+        .dl-horizontal {
+          grid-template-columns: 100px 1fr;
+        }
       }
     </style>
   </head>
 
   <body>
+    <!-- Loading Spinner -->
+    <div class="loading-spinner" id="loading-spinner">
+      <div class="spinner"></div>
+      <div class="loading-text">Analyzing your music mood...</div>
+    </div>
+
     <div class="container">
       <div id="login">
-        <h1>This is an example of the Authorization Code flow</h1>
-        <a href="/login" class="btn btn-primary">Log in with Spotify</a>
+        <div class="logo">
+          <div class="logo-text">hackMood</div>
+          <div class="logo-subtitle">Discover Your Music Mood</div>
+        </div>
+        <h1>Analyze Your Music Vibe</h1>
+        <p class="subtitle">Connect your Spotify account to discover what mood your music taste represents</p>
+        <a href="/login" class="login-btn">
+          <svg class="spotify-icon" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>
+          </svg>
+          Continue with Spotify
+        </a>
       </div>
+
       <div id="loggedin">
-        <div id="user-profile">
+        <div class="profile-card">
+          <div id="user-profile"></div>
         </div>
-        <div id="oauth">
+
+        <div class="action-buttons">
+          <button class="btn btn-primary" id="analyze-mood">🎵 Analyze My Mood</button>
+          <button class="btn btn-secondary" id="obtain-new-token">Refresh Token</button>
         </div>
-        <button class="btn btn-default" id="obtain-new-token">Obtain new token using the refresh token</button>
-        <button class="btn btn-success" id="analyze-mood">Analyze Music Mood</button>
-        <div id="mood-analysis" style="margin-top: 20px;"></div>
+
+        <div id="oauth"></div>
+        <div id="mood-analysis"></div>
       </div>
     </div>
 
+    <!-- Templates -->
     <script id="user-profile-template" type="text/x-handlebars-template">
-      <h1>Logged in as {{display_name}}</h1>
-      <div class="media">
-        <div class="pull-left">
-          <img class="media-object" width="150" src="{{images.0.url}}" />
+      <div class="profile-header">
+        <img class="profile-image" src="{{images.0.url}}" alt="{{display_name}}" />
+        <div class="profile-info">
+          <h2>{{display_name}}</h2>
+          <p>Spotify User</p>
         </div>
-        <div class="media-body">
-          <dl class="dl-horizontal">
-            <dt>Display name</dt><dd class="clearfix">{{display_name}}</dd>
-            <dt>Id</dt><dd>{{id}}</dd>
-            <dt>Email</dt><dd>{{email}}</dd>
-            <dt>Spotify URI</dt><dd><a href="{{external_urls.spotify}}">{{external_urls.spotify}}</a></dd>
-            <dt>Link</dt><dd><a href="{{href}}">{{href}}</a></dd>
-            <dt>Profile Image</dt><dd class="clearfix"><a href="{{images.0.url}}">{{images.0.url}}</a></dd>
-            <dt>Country</dt><dd>{{country}}</dd>
-          </dl>
+      </div>
+      <div class="profile-details">
+        <div class="detail-item">
+          <div class="detail-label">User ID</div>
+          <div class="detail-value">{{id}}</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Email</div>
+          <div class="detail-value">{{email}}</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Country</div>
+          <div class="detail-value">{{country}}</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Profile</div>
+          <div class="detail-value"><a href="{{external_urls.spotify}}" target="_blank">View on Spotify →</a></div>
         </div>
       </div>
     </script>
 
     <script id="oauth-template" type="text/x-handlebars-template">
-      <h2>oAuth info</h2>
-      <dl class="dl-horizontal">
-        <dt>Access token</dt><dd class="text-overflow">{{access_token}}</dd>
-        <dt>Refresh token</dt><dd class="text-overflow">{{refresh_token}}</dd>
-      </dl>
+      <!-- Hidden but available in console -->
     </script>
 
     <script id="mood-template" type="text/x-handlebars-template">
-      <div class="panel panel-{{progressType}}">
-        <div class="panel-heading">
-          <h3 class="panel-title">🎵 Your Music Mood Analysis (Last.fm Tags)</h3>
+      <div class="mood-card">
+        <div class="mood-header">
+          <span class="mood-emoji">{{emoji}}</span>
+          <h2 class="mood-title">{{category}}</h2>
         </div>
-        <div class="panel-body">
-          <h4>{{category}} {{emoji}}</h4>
-          <div class="progress" style="margin: 10px 0; height: 30px;">
-            <div class="progress-bar progress-bar-{{progressType}}" role="progressbar" style="width: {{moodScore}}%">
-              <strong>{{moodScore}}% Confidence</strong>
-            </div>
-          </div>
-          <p><strong>Analysis:</strong> {{description}}</p>
-          <p><small>Based on {{tracksAnalyzed}} of your top tracks</small></p>
+        <p class="mood-description">{{description}}</p>
+        <div class="mood-score">Confidence: {{moodScore}}%</div>
+        <div class="progress-bar-container">
+          <div class="progress-bar" style="width: {{moodScore}}%"></div>
+        </div>
 
-          <h5>Mood Distribution:</h5>
-          <div style="margin-top: 15px;">
-            {{#each distribution}}
-              <div style="margin-bottom: 10px;">
-                <strong>{{this.mood}}</strong>
-                <div class="progress" style="margin: 5px 0;">
-                  <div class="progress-bar" role="progressbar" style="width: {{this.percentage}}%">
-                    {{this.percentage}}%
-                  </div>
-                </div>
-              </div>
-            {{/each}}
+        <div class="distribution-title">Mood Distribution</div>
+        {{#each distribution}}
+        <div class="distribution-item">
+          <span class="distribution-name">{{this.mood}}</span>
+          <div class="distribution-bar">
+            <div class="distribution-fill" style="width: {{this.percentage}}%"></div>
           </div>
+          <span class="distribution-percent">{{this.percentage}}%</span>
+        </div>
+        {{/each}}
 
-          <div style="margin-top: 20px; padding: 10px; background-color: #f5f5f5; border-radius: 5px;">
-            <small>
-              <strong>How it works:</strong> This analysis uses crowd-sourced tags from Last.fm to determine your music mood.
-              Tags from both tracks and artists are weighted and combined to create an overall mood profile.
-            </small>
-          </div>
+        <div class="info-box">
+          <strong>📊 Analysis Details:</strong> Based on {{tracksAnalyzed}} of your top tracks using Last.fm tag data
         </div>
       </div>
     </script>
 
+    <!-- Scripts -->
+    <script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0-alpha.1/handlebars.min.js"></script>
+    <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
     <script>
       // Mood dictionary mapping Last.fm tags to mood categories
       const MOOD_DICTIONARY = {
@@ -166,20 +598,7 @@
         }
       };
 
-      // Last.fm API configuration
-      const LASTFM_API_KEY = process.env.SPOTIFY_CLIENT_ID; // Replace with your Last.fm API key
-      const LASTFM_BASE_URL = 'https://ws.audioscrobbler.com/2.0/';
-    </script>
-
-    <script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0-alpha.1/handlebars.min.js"></script>
-    <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
-    <script>
       (function() {
-
-        /**
-         * Obtains parameters from the hash of the URL
-         * @return Object
-         */
         function getHashParams() {
           var hashParams = {};
           var e, r = /([^&;=]+)=?([^&;]*)/g,
@@ -208,30 +627,46 @@
             refresh_token = params.refresh_token,
             error = params.error;
 
+        console.log('Hash params received:', { access_token: !!access_token, refresh_token: !!refresh_token, error: error });
+
         if (error) {
-          alert('There was an error during the authentication');
+          console.error('Authentication error:', error);
+          moodPlaceholder.innerHTML = '<div class="alert alert-danger">❌ Authentication Error: ' + error + '. Please try logging in again.</div>';
+          $('#login').show();
+          $('#loggedin').hide();
         } else {
           if (access_token) {
-            // render oauth info
-            oauthPlaceholder.innerHTML = oauthTemplate({
-              access_token: access_token,
-              refresh_token: refresh_token
-            });
-
+            console.log('Access token received, fetching user profile...');
             $.ajax({
                 url: 'https://api.spotify.com/v1/me',
                 headers: {
                   'Authorization': 'Bearer ' + access_token
                 },
                 success: function(response) {
-                  userProfilePlaceholder.innerHTML = userProfileTemplate(response);
+                  console.log('User profile fetched successfully:', response.display_name);
+                  // Store user profile for later, but don't display it yet
+                  var userProfile = response;
 
+                  // Show loading spinner and hide everything else
+                  $('#login').hide();
+                  $('#loggedin').hide();
+                  document.getElementById('loading-spinner').classList.add('active');
+
+                  // Automatically start mood analysis without showing profile first
+                  console.log('Starting automatic mood analysis...');
+
+                  // Start mood analysis immediately
+                  analyzeMusicMood(access_token, userProfile);
+                },
+                error: function(xhr, status, err) {
+                  console.error('Failed to fetch user profile:', status, err);
                   $('#login').hide();
                   $('#loggedin').show();
+                  moodPlaceholder.innerHTML = '<div class="alert alert-danger">❌ Failed to load profile. Access token may be invalid.</div>';
                 }
             });
           } else {
-              // render initial screen
+              console.log('No tokens received, showing login screen');
               $('#login').show();
               $('#loggedin').hide();
           }
@@ -244,23 +679,20 @@
               }
             }).done(function(data) {
               access_token = data.access_token;
-              oauthPlaceholder.innerHTML = oauthTemplate({
-                access_token: access_token,
-                refresh_token: refresh_token
-              });
+              alert('Token refreshed! Check console for new access token.');
             });
           }, false);
 
           document.getElementById('analyze-mood').addEventListener('click', function() {
             if (access_token) {
-              analyzeMusicMood(access_token);
+              analyzeMusicMood(access_token, null);
             } else {
               alert('Please login first to analyze your music mood.');
             }
           }, false);
         }
 
-        // Music mood analysis functions using Last.fm tags
+        // Music mood analysis functions
         async function getTopTracks(accessToken) {
           const response = await fetch('https://api.spotify.com/v1/me/top/tracks?limit=50', {
             headers: {
@@ -269,17 +701,15 @@
           });
 
           if (!response.ok) {
-            throw new Error(`Top tracks API error: ${response.status} - ${response.statusText}`);
+            throw new Error(`Top tracks API error: ${response.status}`);
           }
 
           const data = await response.json();
 
           if (!data.items || data.items.length === 0) {
-            throw new Error('No top tracks found. You may need more listening history on Spotify.');
+            throw new Error('No top tracks found. You may need more listening history.');
           }
 
-          console.log('Top tracks fetched:', data.items.length);
-          // Return full track info (name and artist) for Last.fm queries
           return data.items.map(track => ({
             id: track.id,
             name: track.name,
@@ -287,23 +717,15 @@
           }));
         }
 
-        // Fetch tags from Last.fm for a track
         async function getLastFmTrackTags(artist, track) {
           try {
             const url = `/lastfm/proxy?method=track.getTopTags&artist=${encodeURIComponent(artist)}&track=${encodeURIComponent(track)}`;
             const response = await fetch(url);
 
-            if (!response.ok) {
-              console.warn(`Failed to fetch track tags for ${artist} - ${track}: ${response.status}`);
-              return [];
-            }
+            if (!response.ok) return [];
 
             const data = await response.json();
-
-            if (data.error) {
-              console.warn(`Last.fm error for ${artist} - ${track}: ${data.error}`);
-              return [];
-            }
+            if (data.error) return [];
 
             if (data.toptags && data.toptags.tag) {
               const tags = Array.isArray(data.toptags.tag) ? data.toptags.tag : [data.toptags.tag];
@@ -314,28 +736,19 @@
             }
             return [];
           } catch (error) {
-            console.warn(`Error fetching Last.fm track tags for ${artist} - ${track}:`, error.message);
             return [];
           }
         }
 
-        // Fetch tags from Last.fm for an artist
         async function getLastFmArtistTags(artist) {
           try {
             const url = `/lastfm/proxy?method=artist.getTopTags&artist=${encodeURIComponent(artist)}`;
             const response = await fetch(url);
 
-            if (!response.ok) {
-              console.warn(`Failed to fetch artist tags for ${artist}: ${response.status}`);
-              return [];
-            }
+            if (!response.ok) return [];
 
             const data = await response.json();
-
-            if (data.error) {
-              console.warn(`Last.fm error for ${artist}: ${data.error}`);
-              return [];
-            }
+            if (data.error) return [];
 
             if (data.toptags && data.toptags.tag) {
               const tags = Array.isArray(data.toptags.tag) ? data.toptags.tag : [data.toptags.tag];
@@ -346,45 +759,37 @@
             }
             return [];
           } catch (error) {
-            console.warn(`Error fetching Last.fm artist tags for ${artist}:`, error.message);
             return [];
           }
         }
 
-        // Find common tags between track and artist
         function findCommonTags(trackTags, artistTags) {
           const trackTagNames = new Set(trackTags.map(t => t.name));
           return artistTags.filter(artistTag => trackTagNames.has(artistTag.name));
         }
 
-        // Weak descriptors that should have less influence
         const WEAK_DESCRIPTORS = [
           'melancholy', 'melancholic', 'emotional', 'moody', 'nostalgic', 'nostalgia',
           'introspective', 'atmospheric', 'dreamy', 'ethereal', 'contemplative',
           'bittersweet', 'wistful', 'poignant', 'haunting', 'brooding'
         ];
 
-        // Genre tags (these should have priority over weak descriptors)
         const GENRE_TAGS = [
           'edm', 'electronic', 'electro', 'techno', 'house', 'trance',
           'k-pop', 'kpop', 'funk', 'hyperpop',
           'ambient', 'downtempo', 'lofi', 'lo-fi', 'bossa nova', 'jazz', 'classical',
           'sad rap', 'indie folk', 'dream pop', 'shoegaze', 'soft rock', 'chamber pop',
-          'metal', 'hardcore', 'punk', 'industrial', 'rage rap', 'trap metal',
-          'emo'
+          'metal', 'hardcore', 'punk', 'industrial', 'rage rap', 'trap metal', 'emo'
         ];
 
-        // Check if a tag is a genre tag
         function isGenreTag(tagName) {
           return GENRE_TAGS.some(genre => tagName.includes(genre) || genre.includes(tagName));
         }
 
-        // Check if a tag is a weak descriptor
         function isWeakDescriptor(tagName) {
           return WEAK_DESCRIPTORS.some(desc => tagName.includes(desc) || desc.includes(tagName));
         }
 
-        // Map a tag to a mood category and determine if it's a genre or descriptor
         function mapTagToMood(tagName) {
           for (const [mood, config] of Object.entries(MOOD_DICTIONARY)) {
             if (config.tags.some(moodTag => tagName.includes(moodTag) || moodTag.includes(tagName))) {
@@ -399,89 +804,43 @@
           return null;
         }
 
-        // Build weighted tag scores for a single track
         function buildTagScores(trackTags, artistTags, commonTags) {
           const tagScores = {};
-
-          // Weight: Common tags = Track tags > Artist tags (minimal)
           const COMMON_TAG_WEIGHT = 1.0;
           const TRACK_TAG_WEIGHT = 1.0;
           const ARTIST_TAG_WEIGHT = 0.3;
-
-          // Weak descriptor multiplier
           const WEAK_DESCRIPTOR_MULTIPLIER = 0.3;
-
-          // Genre tag boost
           const GENRE_TAG_MULTIPLIER = 1.5;
 
-          // Process common tags
           commonTags.forEach(tag => {
             const moodMapping = mapTagToMood(tag.name);
             if (moodMapping) {
-              if (!tagScores[moodMapping.mood]) {
-                tagScores[moodMapping.mood] = 0;
-              }
-
+              if (!tagScores[moodMapping.mood]) tagScores[moodMapping.mood] = 0;
               let score = tag.count * COMMON_TAG_WEIGHT * moodMapping.weight;
-
-              // Apply weak descriptor penalty
-              if (moodMapping.isWeak) {
-                score *= WEAK_DESCRIPTOR_MULTIPLIER;
-              }
-
-              // Apply genre tag boost
-              if (moodMapping.isGenre) {
-                score *= GENRE_TAG_MULTIPLIER;
-              }
-
+              if (moodMapping.isWeak) score *= WEAK_DESCRIPTOR_MULTIPLIER;
+              if (moodMapping.isGenre) score *= GENRE_TAG_MULTIPLIER;
               tagScores[moodMapping.mood] += score;
             }
           });
 
-          // Process track-specific tags
           trackTags.forEach(tag => {
             const moodMapping = mapTagToMood(tag.name);
             if (moodMapping) {
-              if (!tagScores[moodMapping.mood]) {
-                tagScores[moodMapping.mood] = 0;
-              }
-
+              if (!tagScores[moodMapping.mood]) tagScores[moodMapping.mood] = 0;
               let score = tag.count * TRACK_TAG_WEIGHT * moodMapping.weight;
-
-              // Apply weak descriptor penalty
-              if (moodMapping.isWeak) {
-                score *= WEAK_DESCRIPTOR_MULTIPLIER;
-              }
-
-              // Apply genre tag boost
-              if (moodMapping.isGenre) {
-                score *= GENRE_TAG_MULTIPLIER;
-              }
-
+              if (moodMapping.isWeak) score *= WEAK_DESCRIPTOR_MULTIPLIER;
+              if (moodMapping.isGenre) score *= GENRE_TAG_MULTIPLIER;
               tagScores[moodMapping.mood] += score;
             }
           });
 
-          // Process artist tags (minimal weight)
           artistTags.forEach(tag => {
             const moodMapping = mapTagToMood(tag.name);
             if (moodMapping) {
-              if (!tagScores[moodMapping.mood]) {
-                tagScores[moodMapping.mood] = 0;
-              }
-
+              if (!tagScores[moodMapping.mood]) tagScores[moodMapping.mood] = 0;
               let score = tag.count * ARTIST_TAG_WEIGHT * moodMapping.weight;
-
-              // Apply weak descriptor penalty
-              if (moodMapping.isWeak) {
-                score *= WEAK_DESCRIPTOR_MULTIPLIER;
-              }
-
-              // Apply genre tag boost
-              if (moodMapping.isGenre) {
-                score *= GENRE_TAG_MULTIPLIER;
-              }
-
+              if (moodMapping.isWeak) score *= WEAK_DESCRIPTOR_MULTIPLIER;
+              if (moodMapping.isGenre) score *= GENRE_TAG_MULTIPLIER;
               tagScores[moodMapping.mood] += score;
             }
           });
@@ -489,34 +848,19 @@
           return tagScores;
         }
 
-        // Analyze mood for a single track using Last.fm tags
         async function analyzeTrackMood(track) {
           try {
-            // Fetch tags in parallel
             const [trackTags, artistTags] = await Promise.all([
               getLastFmTrackTags(track.artist, track.name),
               getLastFmArtistTags(track.artist)
             ]);
 
-            // Skip track if no tags available at all
-            if (trackTags.length === 0 && artistTags.length === 0) {
-              console.log(`⊘ Skipping ${track.artist} - ${track.name} (no tags available)`);
-              return null;
-            }
+            if (trackTags.length === 0 && artistTags.length === 0) return null;
 
-            console.log(`✓ ${track.artist} - ${track.name}: ${trackTags.length} track tags, ${artistTags.length} artist tags`);
-
-            // Find common tags
             const commonTags = findCommonTags(trackTags, artistTags);
-
-            // Build weighted tag scores
             const tagScores = buildTagScores(trackTags, artistTags, commonTags);
 
-            // Skip if no mood-relevant tags found
-            if (Object.keys(tagScores).length === 0) {
-              console.log(`⊘ Skipping ${track.artist} - ${track.name} (no mood-relevant tags)`);
-              return null;
-            }
+            if (Object.keys(tagScores).length === 0) return null;
 
             return {
               track: track,
@@ -526,28 +870,21 @@
               commonTags: commonTags
             };
           } catch (error) {
-            console.warn(`Error analyzing track ${track.name}:`, error.message);
             return null;
           }
         }
 
-        // Aggregate mood scores across all tracks
         function aggregateMoodScores(trackAnalyses) {
           const aggregatedScores = {};
-
           trackAnalyses.forEach(analysis => {
             Object.entries(analysis.tagScores).forEach(([mood, score]) => {
-              if (!aggregatedScores[mood]) {
-                aggregatedScores[mood] = 0;
-              }
+              if (!aggregatedScores[mood]) aggregatedScores[mood] = 0;
               aggregatedScores[mood] += score;
             });
           });
-
           return aggregatedScores;
         }
 
-        // Determine the dominant mood and calculate confidence
         function determineDominantMood(aggregatedScores) {
           const moods = Object.entries(aggregatedScores);
 
@@ -560,17 +897,13 @@
             };
           }
 
-          // Sort moods by score
           moods.sort((a, b) => b[1] - a[1]);
 
           const totalScore = moods.reduce((sum, [, score]) => sum + score, 0);
           const dominantMood = moods[0][0];
           const dominantScore = moods[0][1];
-
-          // Calculate confidence as percentage of total
           const confidence = totalScore > 0 ? (dominantScore / totalScore) * 100 : 0;
 
-          // Create distribution object
           const distribution = {};
           moods.forEach(([mood, score]) => {
             distribution[mood] = totalScore > 0 ? (score / totalScore) * 100 : 0;
@@ -588,38 +921,38 @@
           const moodConfig = {
             'happy': {
               category: 'Happy & Uplifting',
-              description: 'Your music taste is full of positive vibes and feel-good energy!',
-              emoji: '😊🎉',
+              description: 'Your music taste is full of positive vibes and feel-good energy! 🎉',
+              emoji: '😊',
               progressType: 'success'
             },
             'relaxing': {
               category: 'Calm & Relaxing',
-              description: 'You prefer peaceful, mellow tracks that help you unwind and chill.',
-              emoji: '😌🍃',
+              description: 'You prefer peaceful, mellow tracks that help you unwind and chill. 🍃',
+              emoji: '😌',
               progressType: 'info'
             },
             'sad': {
               category: 'Melancholic & Emotional',
-              description: 'Your music taste leans toward introspective, emotional, and nostalgic tracks.',
-              emoji: '😔💭',
+              description: 'Your music taste leans toward introspective, emotional, and nostalgic tracks. 💭',
+              emoji: '😔',
               progressType: 'info'
             },
             'energetic': {
               category: 'High Energy',
-              description: 'You love fast-paced, energetic music that pumps you up!',
-              emoji: '⚡🏃',
+              description: 'You love fast-paced, energetic music that pumps you up! ⚡',
+              emoji: '🏃',
               progressType: 'success'
             },
             'angry': {
               category: 'Intense & Aggressive',
-              description: 'Your music taste shows intensity with heavy, aggressive tracks.',
-              emoji: '😤🤘',
+              description: 'Your music taste shows intensity with heavy, aggressive tracks. 🤘',
+              emoji: '😤',
               progressType: 'danger'
             },
             'unknown': {
-              category: 'Mixed/Unknown',
-              description: 'Your music taste is diverse and hard to categorize!',
-              emoji: '🎵❓',
+              category: 'Mixed Vibes',
+              description: 'Your music taste is diverse and hard to categorize! 🎵',
+              emoji: '🎶',
               progressType: 'default'
             }
           };
@@ -638,64 +971,24 @@
           return distribution.sort((a, b) => b.percentage - a.percentage);
         }
 
-
-        async function testTokenWithProfile(accessToken) {
-          console.log('Testing access token with profile endpoint...');
-          console.log('Token (first 20 chars):', accessToken.substring(0, 20) + '...');
-          console.log('Token length:', accessToken.length);
-
-          const response = await fetch('https://api.spotify.com/v1/me', {
-            method: 'GET',
-            headers: {
-              'Authorization': `Bearer ${accessToken}`
-            }
-          });
-
-          console.log('Profile API response status:', response.status);
-
-          if (response.ok) {
-            const profile = await response.json();
-            console.log('Profile API success:', profile.display_name);
-            return true;
-          } else {
-            const errorText = await response.text();
-            console.error('Profile API failed:', errorText);
-            return false;
-          }
-        }
-
-        async function analyzeMusicMood(accessToken) {
+        async function analyzeMusicMood(accessToken, userProfile) {
           try {
-            moodPlaceholder.innerHTML = '<div class="alert alert-info">🎵 Analyzing your music mood using Last.fm tags...</div>';
+            // Loading spinner is already visible, just continue with analysis
+            console.log('Starting mood analysis...');
 
-            // First test if the token works at all
-            const tokenValid = await testTokenWithProfile(accessToken);
-            if (!tokenValid) {
-              throw new Error('Access token is invalid or expired. Please refresh the page and login again.');
-            }
-
-            console.log('Fetching your top 50 tracks...');
             const tracks = await getTopTracks(accessToken);
 
-            moodPlaceholder.innerHTML = '<div class="alert alert-info">🎵 Fetching Last.fm tags for your tracks... This may take a minute.</div>';
-
-            console.log(`Analyzing ${tracks.length} tracks...`);
             const trackAnalyses = [];
             let skippedCount = 0;
 
-            // Analyze tracks in batches to avoid overwhelming the API
             const BATCH_SIZE = 10;
             for (let i = 0; i < tracks.length; i += BATCH_SIZE) {
               const batch = tracks.slice(i, i + BATCH_SIZE);
-              const batchProgress = Math.round(((i + batch.length) / tracks.length) * 100);
-
-              moodPlaceholder.innerHTML = `<div class="alert alert-info">🎵 Analyzing tracks ${i + 1}-${i + batch.length} of ${tracks.length} (${batchProgress}%)<br><small>Analyzed: ${trackAnalyses.length}, Skipped: ${skippedCount}</small></div>`;
 
               const batchAnalyses = await Promise.all(
                 batch.map(track => analyzeTrackMood(track))
               );
 
-              // Filter out null results (skipped tracks)
               batchAnalyses.forEach(analysis => {
                 if (analysis === null) {
                   skippedCount++;
@@ -704,25 +997,17 @@
                 }
               });
 
-              // Small delay between batches to be respectful to the API
               if (i + BATCH_SIZE < tracks.length) {
                 await new Promise(resolve => setTimeout(resolve, 500));
               }
             }
 
-            console.log(`Analysis complete: ${trackAnalyses.length} tracks analyzed, ${skippedCount} tracks skipped`);
-
             if (trackAnalyses.length === 0) {
               throw new Error('No tracks could be analyzed. This might happen if Last.fm does not have tag data for your music.');
             }
 
-            console.log('Aggregating mood scores...');
             const aggregatedScores = aggregateMoodScores(trackAnalyses);
-            console.log('Aggregated scores:', aggregatedScores);
-
             const moodResult = determineDominantMood(aggregatedScores);
-            console.log('Dominant mood:', moodResult);
-
             const moodCategory = categorizeMood(moodResult);
             const distribution = calculateMoodDistribution(moodResult);
 
@@ -737,17 +1022,50 @@
               tracksSkipped: skippedCount
             };
 
-            moodPlaceholder.innerHTML = moodTemplate(moodData);
-            console.log('Music Mood Analysis Complete:', moodData);
+            // Store mood result for later use in localStorage
+            localStorage.setItem('userMoodResult', JSON.stringify({
+              mood: moodResult.mood,
+              confidence: moodResult.confidence,
+              category: moodCategory.category,
+              tracksAnalyzed: trackAnalyses.length,
+              tracksSkipped: skippedCount
+            }));
+
+            // Redirect directly to appropriate world with mood data in URL
+            var worldPath = getMoodWorldPath(moodResult.mood);
+            var queryParams = new URLSearchParams({
+              mood: moodResult.mood,
+              confidence: moodResult.confidence,
+              category: moodCategory.category,
+              tracksAnalyzed: trackAnalyses.length,
+              tracksSkipped: skippedCount
+            }).toString();
+
+            console.log('Redirecting to world:', worldPath, 'for mood:', moodResult.mood);
+            window.location.href = worldPath + '?' + queryParams;
 
           } catch (error) {
-            console.error('Error analyzing music mood:', error);
-            moodPlaceholder.innerHTML = '<div class="alert alert-danger">❌ Error analyzing your music mood: ' + error.message + '</div>';
+            document.getElementById('loading-spinner').classList.remove('active');
+            $('#loggedin').show();
+            moodPlaceholder.innerHTML = '<div class="alert alert-danger">❌ Error: ' + error.message + '</div>';
           }
+        }
+
+        // Map mood to world path
+        function getMoodWorldPath(mood) {
+          var worldPaths = {
+            'happy': 'http://localhost:3000/cyber-city',        // Cyber City - EDM / Electronic
+            'relaxing': 'http://localhost:3000/enchanted-forest', // Enchanted Forest - Indie / Folk
+            'sad': 'http://localhost:3000/farm',                 // Jazz Lounge / Farm - Jazz / Blues (Melancholic)
+            'energetic': 'http://localhost:3000/cyber-city',     // Cyber City - EDM / Electronic
+            'angry': 'http://localhost:3000/concert-hall',       // Grand Concert Hall - Classical (intense)
+            'unknown': 'http://localhost:3000/farm'              // Default to farm
+          };
+
+          return worldPaths[mood] || worldPaths['unknown'];
         }
 
       })();
     </script>
   </body>
 </html>
-
