@@ -36,21 +36,23 @@ export default function Gallery() {
       genre: "Sad / Blues",
       color: "#FFFFFF",
       hoverColor: "#6B7280", // Gray
-      backgroundImage: "/web_assets/demoFarmBlur.png",
+      backgroundImage: "/web_assets/cityBlur.jpg",
       path: "/city",
     },
     {
       name: "Sakura",
-      genre: "Love",
+      genre: "Romantic / Intimate",
       color: "from-yellow-900 to-red-900",
-      emoji: "🎼",
+      hoverColor: "#D88A97",
+      backgroundImage: "/web_assets/sakuraBlur.jpg",
       path: "/sakura",
     },
     {
       name: "Inferno",
-      genre: "Rap/Rock",
+      genre: "Rap / Rock",
       color: "from-yellow-900 to-red-900",
-      emoji: "🎼",
+      backgroundImage: "/web_assets/infernoBlur.jpg",
+      hoverColor: "#FF4500",
       path: "/inferno",
     },
   ];
