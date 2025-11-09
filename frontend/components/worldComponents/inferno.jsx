@@ -10,7 +10,6 @@ import { Rocks } from "./infernoComponents/rocks";
 import { Rock } from "./infernoComponents/rock";
 import { Volcano } from "./infernoComponents/volcano";
 import { Speakers } from "./infernoComponents/speakers";
-import StatsHUD from "./StatsHUD";
 import { useRef, useMemo, useEffect } from "react";
 import * as THREE from "three";
 
@@ -187,7 +186,6 @@ export default function InfernoScene() {
         position: "relative",
       }}
     >
-      <StatsHUD />
       <Canvas camera={{ position: [-5, 9, 20], fov: 60 }} shadows>
         {/* Red/orange inferno sky */}
         <color attach="background" args={["#2a1515"]} />
@@ -324,5 +322,6 @@ export default function InfernoScene() {
           maxPolarAngle={Math.PI / 2.2}
         />
       </Canvas>
+    </div>
   );
 }
