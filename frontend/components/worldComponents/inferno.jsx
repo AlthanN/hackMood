@@ -10,14 +10,11 @@ import { Rocks } from './infernoComponents/rocks';
 import { Rock } from './infernoComponents/rock';
 import { Volcano } from './infernoComponents/volcano';
 import { Speakers } from './infernoComponents/speakers';
-import StatsHUD from './StatsHUD';
 
 // Main inferno scene
 export default function InfernoScene() {
   return (
-    <div style={{ width: '100%', height: '100vh', background: '#0a0a0a', position: 'relative' }}>
-      <StatsHUD />
-      <Canvas
+    <Canvas
         camera={{ position: [15, 10, 15], fov: 60 }}
         shadows
       >
@@ -114,6 +111,5 @@ export default function InfernoScene() {
           maxPolarAngle={Math.PI/2.2}
         />
       </Canvas>
-    </div>
   );
 }

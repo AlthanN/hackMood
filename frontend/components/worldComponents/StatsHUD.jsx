@@ -9,7 +9,7 @@ const moodToWorldMap = {
   sad: '/city',
   energetic: '/beach',
   angry: '/inferno',
-  romantic: '/romantic',
+  romantic: '/sakura',
   unknown: '/camp',
 };
 
@@ -24,8 +24,17 @@ export default function StatsHUD() {
   const [searchInput, setSearchInput] = useState('');
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchError, setSearchError] = useState('');
+  const [hudVisible, setHudVisible] = useState(true);
   const searchParams = useSearchParams();
   const router = useRouter();
+
+  useEffect(() => {
+    // Restore searched friend ID from localStorage on mount
+    const storedFriendId = localStorage.getItem('searchedFriendId');
+    if (storedFriendId) {
+      setSearchInput(storedFriendId);
+    }
+  }, []);
 
   useEffect(() => {
     // Try to get mood data from URL query parameters first
@@ -193,6 +202,9 @@ export default function StatsHUD() {
   };
 
   const handleHomeButton = () => {
+    // Clear searched friend ID when going home
+    localStorage.removeItem('searchedFriendId');
+    setSearchInput('');
     router.push('/');
   };
 
@@ -227,9 +239,10 @@ export default function StatsHUD() {
         const userMood = moodData.data.emotion.toLowerCase();
         const worldRoute = moodToWorldMap[userMood] || '/camp';
         console.log(`Navigating to world for user ${searchInput}: ${userMood} (route: ${worldRoute})`);
-        // Store current world before navigating
+        // Store current world and friend ID before navigating
         if (typeof window !== 'undefined') {
           localStorage.setItem('previousWorldPath', window.location.pathname);
+          localStorage.setItem('searchedFriendId', searchInput.trim());
         }
         router.push(worldRoute);
       } else {
@@ -300,6 +313,17 @@ export default function StatsHUD() {
           background: #1ed760;
         }
       `}</style>
+
+      {/* Show/Hide HUD Button - Bottom Left */}
+      <button
+        onClick={() => setHudVisible(!hudVisible)}
+        style={styles.toggleButton}
+        title={hudVisible ? 'Hide HUD' : 'Show HUD'}
+      >
+        {hudVisible ? 'Hide' : 'Show'}
+      </button>
+
+      {hudVisible && (
       <div style={styles.hudContainer}>
         {/* Left side - Previous Mood Button and Mood Analysis with distribution */}
         <div style={styles.leftPanelContainer}>
@@ -424,13 +448,19 @@ export default function StatsHUD() {
           )}
         </div>
 
-      {/* Spotify User ID - Bottom Right */}
-      {spotifyUserId && (
-        <div style={styles.spotifyUserIdContainer}>
-          <span style={styles.spotifyUserIdText}>{spotifyUserId}</span>
+      {/* User Info - Bottom Right */}
+      <div style={styles.userInfoContainer}>
+        <div style={styles.infoBox}>
+          <div style={styles.infoLabel}>My ID:</div>
+          <div style={styles.infoValue}>{spotifyUserId || 'N/A'}</div>
         </div>
-      )}
+        <div style={styles.infoBox}>
+          <div style={styles.infoLabel}>Friend's ID:</div>
+          <div style={styles.infoValue}>{searchInput || 'Not visiting a world'}</div>
+        </div>
+      </div>
     </div>
+      )}
     </>
   );
 }
@@ -447,13 +477,14 @@ const styles = {
     zIndex: 100,
     display: 'flex',
     justifyContent: 'space-between',
-    padding: '20px',
+    padding: '10px',
     boxSizing: 'border-box',
+    userSelect: 'none',
   },
   leftPanelContainer: {
     pointerEvents: 'auto',
     display: 'flex',
-    gap: '12px',
+    gap: '8px',
     alignItems: 'flex-start',
   },
   leftPanel: {
@@ -462,7 +493,7 @@ const styles = {
   rightPanelContainer: {
     pointerEvents: 'auto',
     display: 'flex',
-    gap: '12px',
+    gap: '8px',
     alignItems: 'flex-start',
   },
   rightPanel: {
@@ -474,7 +505,7 @@ const styles = {
     background: 'rgba(255, 255, 255, 0.05)',
     border: '1px solid rgba(0, 0, 0, 0.1)',
     borderRadius: '12px',
-    padding: '16px 20px',
+    padding: '12px 16px',
     backdropFilter: 'blur(10px)',
     boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
     minWidth: '280px',
@@ -643,18 +674,40 @@ const styles = {
     fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto',
     whiteSpace: 'nowrap',
   },
-  spotifyUserIdContainer: {
+  userInfoContainer: {
     position: 'fixed',
     bottom: '20px',
     right: '20px',
     zIndex: 100,
     pointerEvents: 'auto',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '12px',
   },
-  spotifyUserIdText: {
-    color: '#fff',
-    fontSize: '12px',
-    fontWeight: '500',
+  infoBox: {
+    background: 'rgba(255, 255, 255, 0.05)',
+    border: '1px solid rgba(255, 255, 255, 0.2)',
+    borderRadius: '8px',
+    padding: '12px 16px',
+    backdropFilter: 'blur(10px)',
+    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+    minWidth: '200px',
+  },
+  infoLabel: {
+    color: '#000',
+    fontSize: '11px',
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: '0.5px',
+    marginBottom: '4px',
     fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto',
+  },
+  infoValue: {
+    color: '#000',
+    fontSize: '13px',
+    fontWeight: '500',
+    fontFamily: 'monospace',
+    wordBreak: 'break-all',
   },
   searchBarContainer: {
     pointerEvents: 'auto',
@@ -698,5 +751,27 @@ const styles = {
     fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto',
     textAlign: 'center',
     maxWidth: '220px',
+  },
+  toggleButton: {
+    position: 'fixed',
+    bottom: '20px',
+    left: '20px',
+    zIndex: 101,
+    pointerEvents: 'auto',
+    padding: '12px 40px',
+    minWidth: '120px',
+    background: 'rgba(255, 255, 255, 0.1)',
+    border: '2px solid rgba(255, 255, 255, 0.3)',
+    borderRadius: '12px',
+    color: '#000',
+    fontSize: '16px',
+    fontWeight: '600',
+    cursor: 'pointer',
+    backdropFilter: 'blur(10px)',
+    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+    transition: 'all 0.3s ease',
+    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto',
+    whiteSpace: 'nowrap',
+    textAlign: 'center',
   },
 };

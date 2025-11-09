@@ -3,6 +3,7 @@ import { useRef, useMemo, useState, useEffect } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { extend } from "@react-three/fiber";
+
 extend({ Color: THREE.Color, Fog: THREE.Fog });
 
 function City() {

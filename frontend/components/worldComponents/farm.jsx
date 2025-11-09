@@ -25,6 +25,8 @@ import Stone from './countryComponents/Stone';
 import Stone2 from './countryComponents/Stone2';
 import Duck from './countryComponents/Duck';
 import TopHat from './countryComponents/TopHat';
+import StatsHUD from './StatsHUD';
+
 //import Canvas from "@react-three/fiber";
 
 function AmbientSounds() {
