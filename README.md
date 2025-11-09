@@ -18,10 +18,10 @@ hackmood/
 
 ## Features
 
-- 🎵 Spotify OAuth authentication
-- 🌍 3D world generation based on music mood
-- 🎨 Dynamic mood analysis using Last.fm tags
-- 🎭 Interactive 3D environments with Three.js/React Three Fiber
+- Spotify OAuth authentication
+- 3D world generation based on music mood
+- Dynamic mood analysis using Last.fm tags
+- Interactive 3D environments with Three.js/React Three Fiber
 
 ## Prerequisites
 
