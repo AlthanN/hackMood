@@ -5,6 +5,19 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Sky, Cloud } from '@react-three/drei';
 import * as THREE from 'three';
 import { Boulder } from './happyComponents/Boulder';
+import { Boulder2 } from './happyComponents/Boulder2';
+import { Seagull } from './happyComponents/Seagull';
+import { BBQ } from './happyComponents/BBQ';
+import {PTree} from './happyComponents/PTree';
+import { Sailboat } from './happyComponents/SailBoat';
+import { TreeFrog } from './happyComponents/TreeFrog';
+import { LifePreserve } from './happyComponents/LifePreserve';
+import { SandCastle } from './happyComponents/SandCastle';
+import { DuckPool } from './happyComponents/DuckPool';
+import { OrangeChair } from './happyComponents/OrangeChair';
+import { Table } from './happyComponents/Table';
+import { Cocktail } from './happyComponents/Cocktail';
+
 
 // Animated Water Component
 function Water() {
@@ -12,7 +25,7 @@ function Water() {
   
   // Create wave geometry with more vertices for smooth animation
   const geometry = useMemo(() => {
-    const geo = new THREE.PlaneGeometry(50, 50, 128, 128);
+    const geo = new THREE.PlaneGeometry(100, 50, 128, 128);
     return geo;
   }, []);
   
@@ -119,7 +132,7 @@ function Beach() {
       position={[0, 0.3, 25]}
       receiveShadow
     >
-      <planeGeometry args={[50, 30, 32, 32]} />
+      <planeGeometry args={[100, 30, 32, 32]} />
       <meshStandardMaterial
         map={sandTexture}
         roughness={0.9}
@@ -210,44 +223,6 @@ function BeachBall({ position }) {
   );
 }
 
-// Umbrella
-function BeachUmbrella({ position }) {
-  return (
-    <group position={position}>
-      {/* Pole */}
-      <mesh position={[0, 1.5, 0]} castShadow>
-        <cylinderGeometry args={[0.05, 0.05, 3, 8]} />
-        <meshStandardMaterial color="#8b4513" />
-      </mesh>
-      
-      {/* Umbrella top */}
-      <mesh position={[0, 3, 0]} rotation={[0, 0, 0]} castShadow>
-        <coneGeometry args={[1.5, 1, 8]} />
-        <meshStandardMaterial
-          color="#ff6b6b"
-          side={THREE.DoubleSide}
-        />
-      </mesh>
-      
-      {/* Umbrella stripes */}
-      {[0, 1, 2, 3].map((i) => (
-        <mesh
-          key={i}
-          position={[0, 3, 0]}
-          rotation={[0, (i * Math.PI) / 4, 0]}
-          castShadow
-        >
-          <coneGeometry args={[1.51, 1, 8, 1, false, 0, Math.PI / 4]} />
-          <meshStandardMaterial color="#ffffff" side={THREE.DoubleSide} />
-        </mesh>
-      ))}
-    </group>
-  );
-}
-
-
-
-
 
 // Rocks
 function Rock({ position, scale }) {
@@ -304,24 +279,79 @@ export default function BeachScene() {
         <Beach />
         
         {/* Palm Trees */}
-        <PalmTree position={[-10, 0, 20]} />
-        <PalmTree position={[8, 0, 16]} />
-        <PalmTree position={[-7, 0, 17]} />
+        <PTree position={[0, 0, 25]} scale={5} />
+        <PTree position={[12, 0, 24]} scale={5}/>
+        <PTree position={[-45, 0, 20]} scale={5}/>
+        <PTree position={[-20, 0, 25]} scale={5} />
+        <PTree position={[30, 0, 24]} scale={5}/>
+        <PTree position={[-30, 0, 30]} scale={5}/>
         
-        {/* Beach Umbrella */}
-        <BeachUmbrella position={[2, 0, 8]} />
-        
+        <SandCastle position={[-30, 0, 20]} scale={0.2}></SandCastle>
+
         {/* Beach Ball */}
         <BeachBall position={[4, 0.4, 6]} />
-    
-        
-        {/* Rocks */}
-        <Rock position={[-5, 0.2, 2]} scale={[0.3, 0.3, 0.3]} />
-        <Rock position={[6, 0.15, 1]} scale={[0.2, 0.2, 0.2]} />
-        <Rock position={[-2, 0.25, 1.5]} scale={[0.35, 0.35, 0.35]} />
-        <Rock position={[7, 0.2, 4]} scale={[0.25, 0.25, 0.25]} />
+        <BeachBall position={[0, 0.4, 3]} />
+        <BeachBall position={[10, 0.4, -5]} />
 
-        <Boulder position={[0,0,20]} scale={5}></Boulder>
+
+    
+        <DuckPool position={[-25, 0, -15]} scale={1} ></DuckPool>
+        <DuckPool position={[30, 0, -10]} scale={1} ></DuckPool>
+
+        <PTree position={[-40, 0, 30]} scale={5}></PTree>
+        {/* Rocks */}
+        <Rock position={[-5, 0.2, 25]} scale={[0.3, 0.3, 0.3]} />
+        <Rock position={[6, 0.3, 24]} scale={[0.2, 0.2, 0.2]} />
+        <Rock position={[-2, 0.25, 25]} scale={[0.35, 0.35, 0.35]} />
+        <Rock position={[7, 0.2, 25]} scale={[0.25, 0.25, 0.25]} />
+
+        <Boulder position={[45,8,30]} scale={20}></Boulder>
+        <Boulder2 position={[15,0,40]} rotation={[0,10,0]} scale={50}></Boulder2>
+        <Boulder2 position={[-15,0,40]} rotation={[0,15,0]} scale={50}></Boulder2>
+
+        {/* Animals */}
+        <Seagull position={[25, 0.2, 25]} rotation={[0,20,0]} scale={0.05}></Seagull>
+        <Seagull position={[30, 0.2, 35]} rotation={[0,40,0]} scale={0.05}></Seagull>
+        <Seagull position={[25, 0.2, 30]} rotation={[0,60,0]} scale={0.05}></Seagull>
+
+
+        <BBQ position={[-40, 2  , 20]} rotation={[0, 2, 0]}scale={5}></BBQ>
+        <Sailboat position={[-30, -7, -30]} rotation={[0, 1.5, 0]} scale={1}></Sailboat>
+        <TreeFrog position={[-20, 3.5, -28]} rotation={[0, 1.5, 0]} scale={0.05}></TreeFrog>
+        <Sailboat position={[21, -10.5, -25]} rotation={[0, 2, 0]} scale={1.5}></Sailboat>
+        <TreeFrog position={[32, 5, -28]} rotation={[0, 2, 0]} scale={0.1}></TreeFrog>
+
+        <LifePreserve position={[10,0,-5]} scale={0.01  } ></LifePreserve>
+        <LifePreserve position={[-10,0,0]} scale={0.01  } ></LifePreserve>
+
+        <OrangeChair position={[5,1,20]} scale={40}></OrangeChair>
+        <OrangeChair position={[-5,1,22]} rotation={[0, 5, 0]} scale={40}></OrangeChair>
+        <OrangeChair position={[-21,1,22]} rotation={[0, 0 , 0]} scale={40}></OrangeChair>
+        <OrangeChair position={[-15,1,20]} rotation={[0, 5 , 0]} scale={40}></OrangeChair>
+        <OrangeChair position={[21,1,22]} rotation={[0, 5.5 , 0]} scale={40}></OrangeChair>
+        <OrangeChair position={[27,1,20]} rotation={[0, 5 , 0]} scale={40}></OrangeChair>
+        <Table position={[-1, 1, 20]} scale={2}></Table>
+        <Table position={[23, 1, 19]} scale={2}></Table>
+        <Table position={[-18, 1, 20]} scale={2}></Table>
+        <Cocktail position={[-0.5,2,20]} scale={2}></Cocktail>
+        <Cocktail position={[-1.6,2,20]} scale={2}></Cocktail>
+        <Cocktail position={[-17.4,2,20]} scale={2}></Cocktail>
+        <Cocktail position={[-18.3,2,20]} scale={2}></Cocktail>
+        <Cocktail position={[23.5,2,19]} scale={2}></Cocktail>
+
+        <TreeFrog position={[3, 2.35, 20]} rotation={[0, 4, 0]} scale={0.05}></TreeFrog>
+        <TreeFrog position={[-15.5, 2.35, 18]} rotation={[0, 4, 0]} scale={0.05}></TreeFrog>
+        <TreeFrog position={[-22, 2.35, 22]} rotation={[0, 2.5, 0]} scale={0.05}></TreeFrog>
+        <TreeFrog position={[-5, 2.35, 20]} rotation={[0, 3, 0]} scale={0.05}></TreeFrog>
+
+
+
+
+
+
+
+
+        
         
         {/* Camera Controls */}
         <OrbitControls
@@ -339,7 +369,7 @@ export default function BeachScene() {
       <div style={{
         position: 'absolute',
         bottom: '20px',
-        left: '20px',
+        left: '75px',
         color: 'white',
         fontFamily: 'sans-serif',
         fontSize: '14px',

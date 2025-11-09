@@ -20,7 +20,7 @@ export default function Gallery() {
       genre: "Happy / Energetic",
       color: "#FFFFFF",
       hoverColor: "#0EA5E9", // Ocean blue
-      backgroundImage: "/web_assets/demoFarmBlur.png", 
+      backgroundImage: "/web_assets/beachBlur.png", 
       path: "/beach",
     },
     {
@@ -28,8 +28,8 @@ export default function Gallery() {
       genre: "Calm / Lo-Fi",
       color: "#FFFFFF",
       hoverColor: "#22C55E", // Forest green
-      backgroundImage: "/web_assets/demoFarmBlur.png", 
-      path: "/enchanted-forest",
+      backgroundImage: "/web_assets/campBlur.png", 
+      path: "/camp",
     },
     {
       name: "Gloomy Ville",

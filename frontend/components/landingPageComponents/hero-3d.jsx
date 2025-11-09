@@ -15,10 +15,10 @@ export default function Hero3D({ onCreateWorld }) {
       <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
         <div className="text-center space-y-6 animate-fade-in pointer-events-auto">
           <h1 className="text-5xl md:text-7xl font-serif font-bold text-[#3C2A21] text-balance leading-tight">
-            Your Music. Your World. Your Avatar.
+            Your Music. Your World. 
           </h1> 
           <p className="text-lg md:text-xl text-[#3C2A21] max-w-2xl mx-auto text-balance">
-            Step into an immersive 3D environment crafted uniquely for your sound. Every groove, every beat, visualized.
+            Step into an immersive 3D environment crafted uniquely from your music. Every groove, every beat, visualized.
           </p>
           <div className="flex gap-4 justify-center pt-4 ">
             <button

@@ -63,9 +63,6 @@ export default function Navigation({ onLoginClick }) {
           <a href="#gallery" className="text-[#543111] font-bold  hover:text-foreground transition">
             Gallery
           </a>
-          <a href="#footer" className="text-[#543111] font-bold  hover:text-foreground transition">
-            Contact
-          </a>
           <button
             onClick={onLoginClick}
             className="px-6 py-2 rounded-lg font-semibold transition cursor-pointer hover:scale-110"
@@ -96,9 +93,6 @@ export default function Navigation({ onLoginClick }) {
             </a>
             <a href="#gallery" className="block text-[#543111] font-bold hover:text-foreground">
               Gallery
-            </a>
-            <a href="#footer" className="block text-[#543111] font-bold hover:text-foreground">
-              Contact
             </a>
             <button
               onClick={() => {

@@ -18,9 +18,9 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background">
       <Navigation onLoginClick={handleLogin} />
-      <Hero3D onCreateWorld={() => setShowAuth(true)} />
+      <Hero3D onCreateWorld={handleLogin} />
       <About />
-      <HowItWorks />
+      <HowItWorks/>
       <Gallery />
 
       {showAuth && <AuthModal onClose={() => setShowAuth(false)} />}
