@@ -33,7 +33,7 @@ export default function Gallery() {
       genre: "Classical",
       color: "from-yellow-900 to-red-900",
       emoji: "🎼",
-      path: "/concert-hall",
+      path: "/city",
     },
   ];
 
