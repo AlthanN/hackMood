@@ -3,17 +3,17 @@ export default function HowItWorks() {
     {
       number: "01",
       title: "Connect Your Music",
-      description: "Tell us about your music taste through your listening history or preferences",
+      description: "Tell us about your music taste by logging into your Spotify account",
     },
     {
       number: "02",
-      title: "AI Creates Your World",
-      description: "Our intelligent system analyzes your sound and generates a unique 3D environment",
+      title: "Creating Your World",
+      description: "Our algorithm will parse through your most listened songs to connect you to a unique environment",
     },
     {
       number: "03",
       title: "Explore & Enjoy",
-      description: "Create your avatar and step into your personalized musical universe",
+      description: "Enter your environment and explore into your own musical world!",
     },
   ]
 

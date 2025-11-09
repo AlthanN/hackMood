@@ -6,8 +6,7 @@ export default function About() {
           <div className="text-center space-y-4">
             <h2 className="text-4xl md:text-5xl font-serif font-bold text-foreground">Your Music Deserves a World</h2>
             <p className="text-foreground/70 max-w-3xl mx-auto text-lg">
-              MoodScape transforms your unique music taste into personalized 3D environments. The jazz lounge you see
-              is just the beginning—discover your perfect soundscape.
+              MoodScape transforms your unique music taste into personalized 3D environments, Creating a world suited to your music taste!
             </p>
           </div>
 
@@ -24,11 +23,10 @@ export default function About() {
                 <span className="text-xl">🎵</span>
               </div>
               <h3 className="text-xl font-semibold mb-3" style={{ color: "#543111" }}>
-                AI-Powered Analysis
+                Mood Analysis
               </h3>
               <p style={{ color: "#543111", opacity: 0.85 }}>
-                Our advanced AI analyzes your music preferences and creates a bespoke environment that reflects your
-                sound.
+                Using your Spotify information, you can see your top 50 songs and find what mood your songs say about you! 
               </p>
             </div>
 
@@ -47,7 +45,7 @@ export default function About() {
                 Multiple Worlds
               </h3>
               <p style={{ color: "#543111", opacity: 0.85 }}>
-                From jazz lounges to cyberpunk cities and enchanted forests—each genre gets its perfect environment.
+                From cozy farms to quiet forests, each genre gets its perfect environment.
               </p>
             </div>
 
@@ -63,10 +61,10 @@ export default function About() {
                 <span className="text-xl">👤</span>
               </div>
               <h3 className="text-xl font-semibold mb-3" style={{ color: "#543111" }}>
-                Custom Avatars
+                Friends
               </h3>
               <p style={{ color: "#543111", opacity: 0.85 }}>
-                Create a personalized avatar and inhabit your musical world. Your presence, your rules.
+                Using Spotify IDs, add your friends and see each other mood worlds!
               </p>
             </div>
           </div>
