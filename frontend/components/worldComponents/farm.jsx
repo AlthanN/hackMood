@@ -25,7 +25,9 @@ import Stone from './countryComponents/Stone';
 import Stone2 from './countryComponents/Stone2';
 import Duck from './countryComponents/Duck';
 import TopHat from './countryComponents/TopHat';
-//import Canvas from "@react-three/fiber";
+
+import { extend } from "@react-three/fiber";
+extend({ Color: THREE.Color, Fog: THREE.Fog });
 
 function AmbientSounds() {
   const farmAudioRef = useRef(null);
@@ -52,20 +54,55 @@ function AmbientSounds() {
   return null;
 }
 
+function GradientBackground() {
+  return (
+    <mesh scale={100}>
+      <sphereGeometry args={[1, 64, 64]} />
+      <shaderMaterial
+        side={THREE.BackSide}
+        uniforms={{
+          topColor: { value: new THREE.Color('#fa7f98') },   // top of sky
+          bottomColor: { value: new THREE.Color('#ffe19c') }, // bottom of sky
+        }}
+        vertexShader={`
+          varying vec3 vWorldPosition;
+          void main() {
+            vec4 worldPosition = modelMatrix * vec4(position, 1.0);
+            vWorldPosition = worldPosition.xyz;
+            gl_Position = projectionMatrix * viewMatrix * worldPosition;
+          }
+        `}
+        fragmentShader={`
+          uniform vec3 topColor;
+          uniform vec3 bottomColor;
+          varying vec3 vWorldPosition;
+          void main() {
+            float h = normalize(vWorldPosition).y * 0.5 + 0.5;
+            gl_FragColor = vec4(mix(bottomColor, topColor, h), 1.0);
+          }
+        `}
+      />
+    </mesh>
+  )
+}
+
 // Main farm scene
 export default function FarmScene() {
   return (
-    <div style={{ width: '100%', height: '100vh', background: '#87ceeb' }}>
+    <div style={{ width: '100%', height: '100vh', background: '#1a2a4a' }}>
+
+      
       <Canvas
         camera={{ position: [6, 8, 6], fov: 60 }}
         shadows
       >
         <AmbientSounds />
+        
         {/* Lighting */}
-        <ambientLight intensity={0.5} />
+        <ambientLight intensity={0.8} color = "#ff8754" />
         <directionalLight
           position={[10, 10, 5]}
-          intensity={1}
+          intensity={1.2}
           castShadow
           shadow-mapSize-width={2048}
           shadow-mapSize-height={2048}
@@ -138,7 +175,7 @@ export default function FarmScene() {
         />
 
         <Silo 
-        position = {[-13, 5, 2]}
+        position = {[-13, 4, 2]}
         scale = {4}
         rotation = {[0, Math.PI/2, 0]}
         />
@@ -578,6 +615,7 @@ export default function FarmScene() {
           maxDistance={25}
           maxPolarAngle = {Math.PI/2.2}
         />
+        <GradientBackground />
       </Canvas>
     </div>
   );
