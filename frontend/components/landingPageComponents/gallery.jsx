@@ -20,7 +20,7 @@ export default function Gallery() {
       genre: "Happy / Energetic",
       color: "#FFFFFF",
       hoverColor: "#0EA5E9", // Ocean blue
-      backgroundImage: "/web_assets/beachBlur.png", 
+      backgroundImage: "/web_assets/beachBlur.png",
       path: "/beach",
     },
     {
@@ -28,7 +28,7 @@ export default function Gallery() {
       genre: "Calm / Lo-Fi",
       color: "#FFFFFF",
       hoverColor: "#22C55E", // Forest green
-      backgroundImage: "/web_assets/campBlur.png", 
+      backgroundImage: "/web_assets/campBlur.png",
       path: "/camp",
     },
     {
@@ -36,8 +36,8 @@ export default function Gallery() {
       genre: "Sad / Blues",
       color: "#FFFFFF",
       hoverColor: "#6B7280", // Gray
-      backgroundImage: "/web_assets/demoFarmBlur.png", 
-      path: "/concert-hall",
+      backgroundImage: "/web_assets/demoFarmBlur.png",
+      path: "/city",
     },
     {
       name: "Sakura",
@@ -45,6 +45,13 @@ export default function Gallery() {
       color: "from-yellow-900 to-red-900",
       emoji: "🎼",
       path: "/sakura",
+    },
+    {
+      name: "Inferno",
+      genre: "Rap/Rock",
+      color: "from-yellow-900 to-red-900",
+      emoji: "🎼",
+      path: "/inferno",
     },
   ];
 
@@ -78,18 +85,20 @@ export default function Gallery() {
                   : "hover:shadow-lg shadow-background/50"
               }`}
             >
-              <div 
+              <div
                 className="aspect-video flex items-center justify-center text-7xl group-hover:scale-110 transition-transform duration-500 relative overflow-hidden"
                 style={{
                   backgroundImage: `url(${world.backgroundImage})`,
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
                 }}
               >
                 {/* Optional gradient overlay (can remove if not needed) */}
-                <div className={`absolute inset-0 opacity-40 group-hover:opacity-30 transition-opacity duration-300`} 
-                     style={{ backgroundColor: world.color }} />
-                
+                <div
+                  className={`absolute inset-0 opacity-40 group-hover:opacity-30 transition-opacity duration-300`}
+                  style={{ backgroundColor: world.color }}
+                />
+
                 <div
                   className={`absolute inset-0 bg-accent/0 group-hover:bg-accent/10 transition-colors duration-300`}
                 />
@@ -99,15 +108,25 @@ export default function Gallery() {
                   hoveredIndex === index ? "bg-background/90" : ""
                 }`}
               >
-                <h3 
+                <h3
                   className="text-xl font-semibold mb-1 transition-colors duration-300"
-                  style={{ color: hoveredIndex === index ? world.hoverColor : 'var(--foreground)' }}
+                  style={{
+                    color:
+                      hoveredIndex === index
+                        ? world.hoverColor
+                        : "var(--foreground)",
+                  }}
                 >
                   {world.name}
                 </h3>
-                <p 
+                <p
                   className="text-sm transition-colors duration-300"
-                  style={{ color: hoveredIndex === index ? world.hoverColor : 'rgb(var(--foreground) / 0.6)' }}
+                  style={{
+                    color:
+                      hoveredIndex === index
+                        ? world.hoverColor
+                        : "rgb(var(--foreground) / 0.6)",
+                  }}
                 >
                   {world.genre}
                 </p>

@@ -5,6 +5,7 @@ import { Canvas } from "@react-three/fiber";
 import { useRouter } from "next/navigation";
 import Camp from "@/components/worldComponents/camp";
 import StatsHUD from "@/components/worldComponents/StatsHUD";
+import { OrbitControls } from "@react-three/drei";
 
 export default function CampPage() {
   const router = useRouter();
@@ -18,6 +19,15 @@ export default function CampPage() {
         gl={{ alpha: false }}
       >
         <Camp />
+        <OrbitControls
+          enablePan={true}
+          enableZoom={true}
+          enableRotate={true}
+          minDistance={3}
+          maxDistance={30}
+          maxPolarAngle={Math.PI / 2.2}
+          target={[0, 0, 0]}
+        />
       </Canvas>
     </div>
   );

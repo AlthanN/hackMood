@@ -75,11 +75,11 @@ function Camp() {
 
   // Generate grass patches
   const grassPositions = [];
-  for (let i = 0; i < 150; i++) {
+  for (let i = 0; i < 40; i++) {
     grassPositions.push({
       x: (Math.random() - 0.5) * 18,
       z: (Math.random() - 0.5) * 18,
-      scale: 0.5 + Math.random() * 0.5,
+      scale: 3,
       rotation: Math.random() * Math.PI * 2,
     });
   }
@@ -148,7 +148,7 @@ function Camp() {
       {treePositions.map((pos, index) => (
         <Tree
           key={`tree-${index}`}
-          position={[pos.x, 1.5, pos.z]}
+          position={[pos.x, 2, pos.z]}
           scale={pos.scale}
           rotation={[0, pos.rotation, 0]}
         />
