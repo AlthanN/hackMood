@@ -26,7 +26,7 @@ export default function HowItWorks() {
           {steps.map((step, index) => (
             <div key={index} className="relative">
               {/* Step number */}
-              <div className="text-6xl font-serif font-bold text-accent/20 mb-4">{step.number}</div>
+              <div className="text-6xl text-[#FFF4DB] font-serif font-bold  mb-4">{step.number}</div>
 
               {/* Step content */}
               <div className="bg-background border border-foreground/10 rounded-lg p-8">

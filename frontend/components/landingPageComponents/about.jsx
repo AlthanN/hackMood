@@ -18,7 +18,7 @@ export default function About() {
             >
               <div
                 className="w-12 h-12 rounded-lg flex items-center justify-center mb-4"
-                style={{ backgroundColor: "var(--nav-background)" }}
+                style={{ backgroundColor: "#79B76B" }}
               >
                 <span className="text-xl">🎵</span>
               </div>
@@ -37,7 +37,7 @@ export default function About() {
             >
               <div
                 className="w-12 h-12 rounded-lg flex items-center justify-center mb-4"
-                style={{ backgroundColor: "var(--nav-background)" }}
+                style={{ backgroundColor: "#79B76B" }}
               >
                 <span className="text-xl">🌍</span>
               </div>
@@ -56,7 +56,7 @@ export default function About() {
             >
               <div
                 className="w-12 h-12 rounded-lg flex items-center justify-center mb-4"
-                style={{ backgroundColor: "var(--nav-background)" }}
+                style={{ backgroundColor: "#79B76B" }}
               >
                 <span className="text-xl">👤</span>
               </div>
