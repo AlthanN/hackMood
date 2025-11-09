@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef } from 'react';
+import React, { useRef, useEffect} from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Environment, OrbitControls, Sky } from '@react-three/drei';
 import * as THREE from 'three';
@@ -27,6 +27,31 @@ import Duck from './countryComponents/Duck';
 import TopHat from './countryComponents/TopHat';
 //import Canvas from "@react-three/fiber";
 
+function AmbientSounds() {
+  const farmAudioRef = useRef(null);
+
+  useEffect(() => {
+    // Create and setup fire sound
+    const farmAudio = new Audio("/sounds/FarmAudio.mp3");
+    farmAudio.loop = true;
+    farmAudio.volume = 0.3;
+    farmAudioRef.current = farmAudio;
+
+    // Play both sounds
+    farmAudio
+      .play()
+      .catch((err) => console.log("Farm audio autoplay prevented:", err));
+
+    // Cleanup function
+    return () => {
+      farmAudio.pause();
+      farmAudio.currentTime = 0;
+    };
+  }, []);
+
+  return null;
+}
+
 // Main farm scene
 export default function FarmScene() {
   return (
@@ -35,6 +60,7 @@ export default function FarmScene() {
         camera={{ position: [6, 8, 6], fov: 60 }}
         shadows
       >
+        <AmbientSounds />
         {/* Lighting */}
         <ambientLight intensity={0.5} />
         <directionalLight
