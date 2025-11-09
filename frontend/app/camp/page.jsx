@@ -13,8 +13,6 @@ export default function CampPage() {
   return (
     <div style={{ width: "100%", height: "100vh", position: "relative" }}>
       <StatsHUD />
-      {/* Back Button */}
-
       <Canvas
         camera={{ position: [-1.2, 0.3, 5], fov: 75 }}
         shadows

@@ -12,7 +12,7 @@ export default function Gallery() {
       genre: "Country / Folk",
       color: "#FFFFE0",
       hoverColor: "#8B7355", // Brown/tan for countryside
-      backgroundImage: "/web_assets/demoFarmBlur.png",
+      backgroundImage: "/web_assets/farmBlur.png",
       path: "/farm",
     },
     {
