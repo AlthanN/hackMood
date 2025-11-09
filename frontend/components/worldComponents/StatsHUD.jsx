@@ -24,21 +24,8 @@ export default function StatsHUD() {
   const [searchInput, setSearchInput] = useState('');
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchError, setSearchError] = useState('');
-  const [shouldShowBackButton, setShouldShowBackButton] = useState(false);
   const searchParams = useSearchParams();
   const router = useRouter();
-
-  useEffect(() => {
-    // Check if we navigated via previous mood or search
-    if (typeof window !== 'undefined') {
-      const navigatedViaButton = localStorage.getItem('navigatedViaButton');
-      setShouldShowBackButton(navigatedViaButton === 'true');
-      // Clear the flag after using it
-      if (navigatedViaButton) {
-        localStorage.removeItem('navigatedViaButton');
-      }
-    }
-  }, []);
 
   useEffect(() => {
     // Try to get mood data from URL query parameters first
@@ -74,6 +61,8 @@ export default function StatsHUD() {
         distribution: distribution,
       };
       setMoodData(moodData);
+      // Store in localStorage for persistence across navigation
+      localStorage.setItem('currentMoodData', JSON.stringify(moodData));
 
       // Store current mood in database if user has no mood stored yet
       storeCurrentMoodIfEmpty(moodData.moodKey);
@@ -84,10 +73,13 @@ export default function StatsHUD() {
     } else {
       // Fallback to localStorage if URL params not available
       try {
-        const storedMood = localStorage.getItem('userMoodResult');
+        const storedMood = localStorage.getItem('userMoodResult') || localStorage.getItem('currentMoodData');
         if (storedMood) {
           const moodResult = JSON.parse(storedMood);
           setMoodData(moodResult);
+          // Still fetch tracks and old mood
+          fetchRecentlyListenedTracks();
+          fetchOldMood();
         }
       } catch (error) {
         console.error('Error parsing mood data:', error);
@@ -196,18 +188,12 @@ export default function StatsHUD() {
     // Store current world before navigating
     if (typeof window !== 'undefined') {
       localStorage.setItem('previousWorldPath', window.location.pathname);
-      localStorage.setItem('navigatedViaButton', 'true');
     }
     router.push(worldRoute);
   };
 
-  const handleBackToWorld = () => {
-    if (typeof window !== 'undefined') {
-      const previousPath = localStorage.getItem('previousWorldPath');
-      if (previousPath) {
-        router.push(previousPath);
-      }
-    }
+  const handleHomeButton = () => {
+    router.push('/');
   };
 
   const handleSearchUser = async (e) => {
@@ -244,7 +230,6 @@ export default function StatsHUD() {
         // Store current world before navigating
         if (typeof window !== 'undefined') {
           localStorage.setItem('previousWorldPath', window.location.pathname);
-          localStorage.setItem('navigatedViaButton', 'true');
         }
         router.push(worldRoute);
       } else {
@@ -297,10 +282,6 @@ export default function StatsHUD() {
     }
   };
 
-  if (!moodData) {
-    return null;
-  }
-
   return (
     <>
       <style>{`
@@ -322,45 +303,47 @@ export default function StatsHUD() {
       <div style={styles.hudContainer}>
         {/* Left side - Previous Mood Button and Mood Analysis with distribution */}
         <div style={styles.leftPanelContainer}>
-          <div style={styles.leftPanel}>
-            <div
-              style={{
-                ...styles.panel,
-                ...styles.leftPanelContent,
-                ...(expandedMood ? {} : styles.panelCollapsed)
-              }}
-              onClick={() => setExpandedMood(!expandedMood)}
-            >
-              <div style={styles.title}>Mood Analysis</div>
-              {expandedMood && (
-                <>
-                  <div style={styles.stat}>
-                    <span style={styles.label}>Detected Mood:</span>
-                    <span style={styles.value}>{moodData.category}</span>
-                  </div>
-                  <div style={styles.stat}>
-                    <span style={styles.label}>Confidence:</span>
-                    <span style={styles.value}>{moodData.confidence}%</span>
-                  </div>
-
-                  {/* Mood Distribution */}
-                  {moodData.distribution && moodData.distribution.length > 0 && (
-                    <div style={styles.distributionSection}>
-                      <div style={styles.distributionTitle}>Mood Breakdown</div>
-                      {moodData.distribution.map((item, index) => (
-                        <div key={index} style={styles.distributionItem}>
-                          <span style={styles.moodLabel}>{item.mood}</span>
-                          <span style={styles.moodPercentage}>{item.percentage}%</span>
-                        </div>
-                      ))}
+          {moodData && (
+            <div style={styles.leftPanel}>
+              <div
+                style={{
+                  ...styles.panel,
+                  ...styles.leftPanelContent,
+                  ...(expandedMood ? {} : styles.panelCollapsed)
+                }}
+                onClick={() => setExpandedMood(!expandedMood)}
+              >
+                <div style={styles.title}>Mood Analysis</div>
+                {expandedMood && (
+                  <>
+                    <div style={styles.stat}>
+                      <span style={styles.label}>Detected Mood:</span>
+                      <span style={styles.value}>{moodData.category}</span>
                     </div>
-                  )}
-                </>
-              )}
-            </div>
-          </div>
+                    <div style={styles.stat}>
+                      <span style={styles.label}>Confidence:</span>
+                      <span style={styles.value}>{moodData.confidence}%</span>
+                    </div>
 
-          {/* Previous Mood Button and Back Button - Right of Mood Analysis */}
+                    {/* Mood Distribution */}
+                    {moodData.distribution && moodData.distribution.length > 0 && (
+                      <div style={styles.distributionSection}>
+                        <div style={styles.distributionTitle}>Mood Breakdown</div>
+                        {moodData.distribution.map((item, index) => (
+                          <div key={index} style={styles.distributionItem}>
+                            <span style={styles.moodLabel}>{item.mood}</span>
+                            <span style={styles.moodPercentage}>{item.percentage}%</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Previous Mood Button, Back Button, and Home Button - Right of Mood Analysis */}
           <div style={styles.buttonGroup}>
             {oldMood && (
               <button
@@ -371,15 +354,13 @@ export default function StatsHUD() {
                 Previous Mood: {oldMood.charAt(0).toUpperCase() + oldMood.slice(1)}
               </button>
             )}
-            {shouldShowBackButton && (
-              <button
-                onClick={handleBackToWorld}
-                style={styles.backButton}
-                title="Back to previous world"
-              >
-                ← Back
-              </button>
-            )}
+            <button
+              onClick={handleHomeButton}
+              style={styles.homeButton}
+              title="Return to home"
+            >
+              Home
+            </button>
           </div>
         </div>
 
@@ -408,37 +389,39 @@ export default function StatsHUD() {
             {searchError && <div style={styles.searchError}>{searchError}</div>}
           </form>
 
-          <div style={styles.rightPanel}>
-            <div
-              style={{
-                ...styles.panel,
-                ...(expandedTracks ? styles.rightPanelContent : styles.rightPanelContentCollapsed)
-              }}
-              onClick={() => setExpandedTracks(!expandedTracks)}
-            >
-              <div style={styles.title}>Top 50 Tracks</div>
+          {moodData && (
+            <div style={styles.rightPanel}>
+              <div
+                style={{
+                  ...styles.panel,
+                  ...(expandedTracks ? styles.rightPanelContent : styles.rightPanelContentCollapsed)
+                }}
+                onClick={() => setExpandedTracks(!expandedTracks)}
+              >
+                <div style={styles.title}>Top 50 Tracks</div>
 
-              {expandedTracks && (
-                <>
-                  {tracksData && tracksData.length > 0 ? (
-                    <div className="stats-tracks-list" style={styles.tracksList}>
-                      {tracksData.map((track, index) => (
-                        <div key={index} style={styles.trackItem}>
-                          <span style={styles.trackNumber}>{index + 1}.</span>
-                          <div style={styles.trackInfo}>
-                            <div style={styles.trackName}>{track.name}</div>
-                            <div style={styles.trackArtist}>{track.artist}</div>
+                {expandedTracks && (
+                  <>
+                    {tracksData && tracksData.length > 0 ? (
+                      <div className="stats-tracks-list" style={styles.tracksList}>
+                        {tracksData.map((track, index) => (
+                          <div key={index} style={styles.trackItem}>
+                            <span style={styles.trackNumber}>{index + 1}.</span>
+                            <div style={styles.trackInfo}>
+                              <div style={styles.trackName}>{track.name}</div>
+                              <div style={styles.trackArtist}>{track.artist}</div>
+                            </div>
                           </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div style={styles.loadingText}>Loading tracks...</div>
-                  )}
-                </>
-              )}
+                        ))}
+                      </div>
+                    ) : (
+                      <div style={styles.loadingText}>Loading tracks...</div>
+                    )}
+                  </>
+                )}
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
       {/* Spotify User ID - Bottom Right */}
@@ -644,7 +627,7 @@ const styles = {
     gap: '8px',
     alignItems: 'flex-start',
   },
-  backButton: {
+  homeButton: {
     pointerEvents: 'auto',
     padding: '12px 24px',
     background: 'rgba(255, 255, 255, 0.1)',
