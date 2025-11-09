@@ -2,6 +2,11 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Menu, X } from "lucide-react"
 
+function handleLogin() {
+  const backendUrl = 'http://127.0.0.1:8888';
+  window.location.href = backendUrl;
+}
+
 export default function Navigation({ onLoginClick }) {
   const [isOpen, setIsOpen] = useState(false)
   const [isVisible, setIsVisible] = useState(true)

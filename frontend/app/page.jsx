@@ -8,13 +8,16 @@ import HowItWorks from "@/components/landingPageComponents/how-it-works"
 import Gallery from "@/components/landingPageComponents/gallery"
 import AuthModal from "@/components/landingPageComponents/auth-modal"
 
-
 export default function Home() {
   const [showAuth, setShowAuth] = useState(false)
 
+  const handleLogin = () => {
+    window.location.href = 'http://127.0.0.1:8888';
+  }
+
   return (
     <div className="min-h-screen bg-background">
-      <Navigation onLoginClick={() => setShowAuth(true)} />
+      <Navigation onLoginClick={handleLogin} />
       <Hero3D onCreateWorld={() => setShowAuth(true)} />
       <About />
       <HowItWorks />

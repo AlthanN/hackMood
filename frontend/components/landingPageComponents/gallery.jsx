@@ -1,10 +1,10 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import Link from "next/link"
+import { useState } from "react";
+import Link from "next/link";
 
 export default function Gallery() {
-  const [hoveredIndex, setHoveredIndex] = useState(null)
+  const [hoveredIndex, setHoveredIndex] = useState(null);
 
   const worlds = [
     {
@@ -39,11 +39,11 @@ export default function Gallery() {
       backgroundImage: "/web_assets/demoFarmBlur.png", 
       path: "/concert-hall",
     },
-  ]
+  ];
 
   const handleNavigate = (path) => {
-    window.location.href = path
-  }
+    window.location.href = path;
+  };
 
   return (
     <section id="gallery" className="py-20 bg-background">
@@ -63,7 +63,9 @@ export default function Gallery() {
               key={index}
               onMouseEnter={() => setHoveredIndex(index)}
               onMouseLeave={() => setHoveredIndex(null)}
-              className={`rounded-lg overflow-hidden border border-foreground/10 hover:border-accent/50 transition-all duration-300 group cursor-pointer transform ${
+              className={`bg-gradient-to-br ${
+                world.color
+              } rounded-lg overflow-hidden border border-foreground/10 hover:border-accent/50 transition-all duration-300 group cursor-pointer transform ${
                 hoveredIndex === index
                   ? "scale-105 shadow-2xl shadow-accent/20"
                   : "hover:shadow-lg shadow-background/50"
@@ -103,7 +105,7 @@ export default function Gallery() {
                   {world.genre}
                 </p>
                 {hoveredIndex === index && (
-                  <button 
+                  <button
                     onClick={() => handleNavigate(world.path)}
                     className="cursor-pointer mt-3 px-4 py-2 rounded-lg text-sm font-semibold hover:opacity-90 transition animate-slide-up text-white"
                     style={{ backgroundColor: world.hoverColor }}
@@ -117,5 +119,5 @@ export default function Gallery() {
         </div>
       </div>
     </section>
-  )
+  );
 }
