@@ -68,7 +68,7 @@ export default function Navigation({ onLoginClick }) {
           </a>
           <button
             onClick={onLoginClick}
-            className="px-6 py-2 rounded-lg font-semibold transition"
+            className="px-6 py-2 rounded-lg font-semibold transition cursor-pointer hover:scale-110"
             style={{ backgroundColor: "#79B76B", color: "#FFFFFF" }}
           >
             Sign In
@@ -85,7 +85,7 @@ export default function Navigation({ onLoginClick }) {
       {isOpen && (
         <div className="md:hidden border-t border-foreground/10" style={{ backgroundColor: "var(--nav-background)" }}>
           <div className="px-6 py-4 space-y-4">
-            <a href="#about" className="block text-[#543111] font-bold hover:text-foreground">
+            <a href="#about" className="block text-[#543111] font-bold hover:text-foreground ">
               Home
             </a>
             <a href="#about" className="block text-[#543111] font-bold hover:text-foreground">
