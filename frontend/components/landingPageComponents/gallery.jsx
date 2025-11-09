@@ -8,7 +8,7 @@ export default function Gallery() {
 
   const worlds = [
     {
-      name: "Jazz Lounge",
+      name: "Breath-Taking Beach",
       genre: "Jazz / Blues",
       color: "from-blue-900 to-amber-900",
       emoji: "🎺",
@@ -19,7 +19,7 @@ export default function Gallery() {
       genre: "EDM / Electronic",
       color: "from-purple-900 to-pink-900",
       emoji: "🌆",
-      path: "/cyber-city",
+      path: "/beach",
     },
     {
       name: "Enchanted Forest",
