@@ -19,6 +19,14 @@ export default function CampPage() {
         gl={{ alpha: false }}
       >
         <Camp />
+        <OrbitControls
+          enablePan={true}
+          enableZoom={true}
+          enableRotate={true}
+          minDistance={10}
+          maxDistance={50}
+          maxPolarAngle={Math.PI / 2.2}
+        />
       </Canvas>
     </div>
   );
