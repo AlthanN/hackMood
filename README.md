@@ -1,4 +1,4 @@
-# HackMood 🎵
+# HackMood 
 
 A music mood-based world generator that uses Spotify authentication and Last.fm data to create personalized 3D worlds based on your music taste.
 
