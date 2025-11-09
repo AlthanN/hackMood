@@ -3,6 +3,7 @@ import { BlueRose } from "./sakuraComponents/bluerose";
 import { Bench } from "./sakuraComponents/bench";
 import { Grass } from "./sakuraComponents/grass";
 import { SakuraTree } from "./sakuraComponents/sakuraTree";
+import Frog from './countryComponents/Frog';
 import { useRef, useEffect } from "react";
 import StatsHUD from './StatsHUD';
 
@@ -48,6 +49,16 @@ export default function Sakura() {
 
       {/* Ground */}
       <Grass />
+      <Frog 
+        position = {[-5.55, 3.4, 5.55]}
+        scale = {0.003}
+        rotation = {[0, -Math.PI, 0]}
+        />
+      <Frog 
+        position = {[-5.75, 3.45, 5.5]}
+        scale = {0.003}
+        rotation = {[0, -Math.PI/0.8, 0]}
+        />
 
       {/* Bench in the center */}
       <group position={[0, 0, 0]}>
