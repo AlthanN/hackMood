@@ -15,7 +15,8 @@ hackmood/
 │   └── public/      # Static files (if needed)
 └── README.md
 ```
-##Inspiration
+## Inspiration
+
 We were inspired by how Receiptify brought people together through their shared love of music. Building on that idea, we set out to create an experience that feels more immersive and emotionally resonant. With Moodscape, we transform listening habits into personalized landscapes that visually reflect a user’s musical mood. Our goal is to foster new relationships and build upon old ones through shared musical connection
 
 
