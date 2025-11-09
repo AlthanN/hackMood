@@ -238,7 +238,7 @@ export default function BeachScene() {
   return (
     <div style={{ width: '100%', height: '100vh' }}>
       <Canvas
-        camera={{ position: [10, 8, 15], fov: 60 }}
+        camera={{ position: [40, 5, -30], fov: 60 }}
         shadows
       >
         {/* Sky */}

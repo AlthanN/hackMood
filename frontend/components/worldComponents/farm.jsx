@@ -96,7 +96,7 @@ export default function FarmScene() {
 
       
       <Canvas
-        camera={{ position: [6, 8, 6], fov: 60 }}
+        camera={{ position: [6, 6, 18], fov: 60 }}
         shadows
       >
         <AmbientSounds />
