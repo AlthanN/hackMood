@@ -1,7 +1,7 @@
 import { useGLTF } from "@react-three/drei";
 
 export function Bench(props) {
-  const { nodes, materials } = useGLTF("/Park Bench.glb");
+  const { nodes, materials } = useGLTF("/sakura_world/Park Bench.glb");
   return (
     <group {...props} dispose={null}>
       <mesh

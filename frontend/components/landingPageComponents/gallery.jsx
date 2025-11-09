@@ -39,6 +39,13 @@ export default function Gallery() {
       backgroundImage: "/web_assets/demoFarmBlur.png", 
       path: "/concert-hall",
     },
+    {
+      name: "Sakura",
+      genre: "Love",
+      color: "from-yellow-900 to-red-900",
+      emoji: "🎼",
+      path: "/sakura",
+    },
   ];
 
   const handleNavigate = (path) => {
