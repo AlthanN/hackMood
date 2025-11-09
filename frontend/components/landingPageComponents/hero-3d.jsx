@@ -20,10 +20,10 @@ export default function Hero3D({ onCreateWorld }) {
           <p className="text-lg md:text-xl text-[#3C2A21] max-w-2xl mx-auto text-balance">
             Step into an immersive 3D environment crafted uniquely for your sound. Every groove, every beat, visualized.
           </p>
-          <div className="flex gap-4 justify-center pt-4">
+          <div className="flex gap-4 justify-center pt-4 ">
             <button
               onClick={onCreateWorld}
-              className="px-8 py-3 rounded-lg font-semibold transition pointer-events-auto"
+              className="px-8 py-3 hover:scale-110 rounded-lg font-semibold transition cursor-pointer pointer-events-auto"
               style={{ backgroundColor: "#79B76B", color: "#FFFFFF" }}
             >
               Create Your World

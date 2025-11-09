@@ -93,6 +93,9 @@ npm install
 # or
 pnpm install
 
+if it does not work, try doing:
+npm install --legacy-peer-deps
+
 # Create environment file
 cp .env.example .env.local
 

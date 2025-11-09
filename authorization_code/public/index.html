@@ -458,7 +458,7 @@
         </div>
 
         <div class="action-buttons">
-          <button class="btn btn-primary" id="analyze-mood">🎵 Analyze My Mood</button>
+          <button class="btn btn-primary" id="analyze-mood">Analyze My Mood</button>
           <button class="btn btn-secondary" id="obtain-new-token">Refresh Token</button>
         </div>
 
@@ -637,6 +637,11 @@
         } else {
           if (access_token) {
             console.log('Access token received, fetching user profile...');
+            // Store access token in localStorage for later use
+            localStorage.setItem('spotify_access_token', access_token);
+            if (refresh_token) {
+              localStorage.setItem('spotify_refresh_token', refresh_token);
+            }
             $.ajax({
                 url: 'https://api.spotify.com/v1/me',
                 headers: {
@@ -1022,13 +1027,24 @@
               tracksSkipped: skippedCount
             };
 
+            // Build mood distribution array for URL
+            var moodDistribution = [];
+            Object.entries(moodResult.distribution).forEach(([mood, percentage]) => {
+              moodDistribution.push({
+                mood: mood,
+                percentage: Math.round(percentage)
+              });
+            });
+            moodDistribution.sort((a, b) => b.percentage - a.percentage);
+
             // Store mood result for later use in localStorage
             localStorage.setItem('userMoodResult', JSON.stringify({
               mood: moodResult.mood,
               confidence: moodResult.confidence,
               category: moodCategory.category,
               tracksAnalyzed: trackAnalyses.length,
-              tracksSkipped: skippedCount
+              tracksSkipped: skippedCount,
+              distribution: moodDistribution
             }));
 
             // Redirect directly to appropriate world with mood data in URL
@@ -1038,7 +1054,9 @@
               confidence: moodResult.confidence,
               category: moodCategory.category,
               tracksAnalyzed: trackAnalyses.length,
-              tracksSkipped: skippedCount
+              tracksSkipped: skippedCount,
+              distribution: JSON.stringify(moodDistribution),
+              accessToken: accessToken
             }).toString();
 
             console.log('Redirecting to world:', worldPath, 'for mood:', moodResult.mood);

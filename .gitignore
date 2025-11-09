@@ -1,0 +1,11 @@
+web-api-examples-master/
+.DS_Store
+node_modules/
+.env
+.env.local
+.env.*.local
+*.log
+.next/
+out/
+dist/
+build/
