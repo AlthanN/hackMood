@@ -5,7 +5,6 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Sky, Cloud } from '@react-three/drei';
 import * as THREE from 'three';
 import { Boulder } from './happyComponents/Boulder';
-import StatsHUD from './StatsHUD';
 import { Boulder2 } from './happyComponents/Boulder2';
 import { Seagull } from './happyComponents/Seagull';
 import { BBQ } from './happyComponents/BBQ';
@@ -18,37 +17,6 @@ import { DuckPool } from './happyComponents/DuckPool';
 import { OrangeChair } from './happyComponents/OrangeChair';
 import { Table } from './happyComponents/Table';
 import { Cocktail } from './happyComponents/Cocktail';
-import StatsHUD from './StatsHUD';
-import { useEffect } from 'react';
-import { FlyingSeagull } from './happyComponents/FlyingBird';
-import { Bucket } from './happyComponents/Bucket';
-import { Turtle } from './happyComponents/Turtle';
-
-// Audio component for ambient sounds
-function AmbientSounds() {
-  const beachAudioRef = useRef(null);
-
-  useEffect(() => {
-    // Create and setup beach sound
-    const beachAudio = new Audio("/sounds/beach.wav");
-    beachAudio.loop = true;
-    beachAudio.volume = 0.5;
-    beachAudioRef.current = beachAudio;
-
-    // Play sound
-    beachAudio
-      .play()
-      .catch((err) => console.log("Beach audio autoplay prevented:", err));
-    
-    // Cleanup function
-    return () => {
-      beachAudio.pause(); // Changed from BeachAudio to beachAudio
-      beachAudio.currentTime = 0; // Changed from BeachAudio to beachAudio
-    };
-  }, []);
-
-  return null;
-}
 
 // Animated Water Component
 function Water() {
@@ -269,8 +237,6 @@ function Rock({ position, scale }) {
 export default function BeachScene() {
   return (
     <div style={{ width: '100%', height: '100vh' }}>
-      <AmbientSounds></AmbientSounds>
-      <StatsHUD />
       <Canvas
         camera={{ position: [10, 8, 15], fov: 60 }}
         shadows
@@ -377,18 +343,15 @@ export default function BeachScene() {
         <TreeFrog position={[-22, 2.35, 22]} rotation={[0, 2.5, 0]} scale={0.05}></TreeFrog>
         <TreeFrog position={[-5, 2.35, 20]} rotation={[0, 3, 0]} scale={0.05}></TreeFrog>
 
-        <FlyingSeagull position={[5,10,-5]} scale={0.05}></FlyingSeagull>
-        <FlyingSeagull position={[20,15,-10]} scale={0.05}></FlyingSeagull>
-        <FlyingSeagull position={[-30,10,-20]} scale={0.05}></FlyingSeagull>
-        <FlyingSeagull position={[-5,10,-20]} scale={0.05}></FlyingSeagull>
-  
-        <Bucket position={[-26, 1, 15]} rotation={[0, 2, 0]}scale={0.5}></Bucket>
-        <Turtle position={[40, 0.3, 9]} scale={0.5}></Turtle>
-        <Turtle position={[40, -0.5, 0]} scale={0.5}></Turtle>
 
-        <Turtle position={[32, 0.3, 15]} rotation={[0, 2, 0]} scale={0.5}></Turtle>
-        <Turtle position={[-40, 0.3, 14]} rotation={[0, 0, 0]} scale={0.5}></Turtle>
 
+
+
+
+
+
+        
+        
         {/* Camera Controls */}
         <OrbitControls
           enablePan={true}
@@ -401,7 +364,21 @@ export default function BeachScene() {
         />
       </Canvas>
       
-      
+      {/* Info overlay */}
+      <div style={{
+        position: 'absolute',
+        bottom: '20px',
+        left: '75px',
+        color: 'white',
+        fontFamily: 'sans-serif',
+        fontSize: '14px',
+        textShadow: '2px 2px 4px rgba(0,0,0,0.5)',
+        background: 'rgba(0,0,0,0.3)',
+        padding: '10px',
+        borderRadius: '8px'
+      }}>
+        🏖️ Beach Scene • Drag to rotate • Scroll to zoom
+      </div>
     </div>
   );
 }
