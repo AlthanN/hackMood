@@ -19,7 +19,7 @@ export const metadata = {
         media: "(prefers-color-scheme: dark)",
       },
       {
-        url: "/icon.svg",
+        url: "/web_assets/moodscape_crc_logo.png",
         type: "image/svg+xml",
       },
     ],

@@ -14,8 +14,8 @@ export default function About() {
           <div className="grid md:grid-cols-3 gap-8">
             {/* Feature 1 */}
             <div
-              className="border border-foreground/10 rounded-lg p-8 hover:border-accent/50 transition"
-              style={{ backgroundColor: "var(--feature-box-bg)" }}
+              className="border border-foreground/10 rounded-lg p-8  hover:border-accent/50 transition"
+              style={{ backgroundColor: "#F3D5A5" }}
             >
               <div
                 className="w-12 h-12 rounded-lg flex items-center justify-center mb-4"
@@ -23,10 +23,10 @@ export default function About() {
               >
                 <span className="text-xl">🎵</span>
               </div>
-              <h3 className="text-xl font-semibold mb-3" style={{ color: "var(--feature-box-text)" }}>
+              <h3 className="text-xl font-semibold mb-3" style={{ color: "#543111" }}>
                 AI-Powered Analysis
               </h3>
-              <p style={{ color: "var(--feature-box-text)", opacity: 0.85 }}>
+              <p style={{ color: "#543111", opacity: 0.85 }}>
                 Our advanced AI analyzes your music preferences and creates a bespoke environment that reflects your
                 sound.
               </p>
@@ -35,7 +35,7 @@ export default function About() {
             {/* Feature 2 */}
             <div
               className="border border-foreground/10 rounded-lg p-8 hover:border-accent/50 transition"
-              style={{ backgroundColor: "var(--feature-box-bg)" }}
+              style={{ backgroundColor: "#F3D5A5" }}
             >
               <div
                 className="w-12 h-12 rounded-lg flex items-center justify-center mb-4"
@@ -43,10 +43,10 @@ export default function About() {
               >
                 <span className="text-xl">🌍</span>
               </div>
-              <h3 className="text-xl font-semibold mb-3" style={{ color: "var(--feature-box-text)" }}>
+              <h3 className="text-xl font-semibold mb-3" style={{ color: "#543111" }}>
                 Multiple Worlds
               </h3>
-              <p style={{ color: "var(--feature-box-text)", opacity: 0.85 }}>
+              <p style={{ color: "#543111", opacity: 0.85 }}>
                 From jazz lounges to cyberpunk cities and enchanted forests—each genre gets its perfect environment.
               </p>
             </div>
@@ -54,7 +54,7 @@ export default function About() {
             {/* Feature 3 */}
             <div
               className="border border-foreground/10 rounded-lg p-8 hover:border-accent/50 transition"
-              style={{ backgroundColor: "var(--feature-box-bg)" }}
+              style={{ backgroundColor: "#F3D5A5" }}
             >
               <div
                 className="w-12 h-12 rounded-lg flex items-center justify-center mb-4"
@@ -62,10 +62,10 @@ export default function About() {
               >
                 <span className="text-xl">👤</span>
               </div>
-              <h3 className="text-xl font-semibold mb-3" style={{ color: "var(--feature-box-text)" }}>
+              <h3 className="text-xl font-semibold mb-3" style={{ color: "#543111" }}>
                 Custom Avatars
               </h3>
-              <p style={{ color: "var(--feature-box-text)", opacity: 0.85 }}>
+              <p style={{ color: "#543111", opacity: 0.85 }}>
                 Create a personalized avatar and inhabit your musical world. Your presence, your rules.
               </p>
             </div>

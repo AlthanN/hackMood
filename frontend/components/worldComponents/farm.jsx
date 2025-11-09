@@ -1,19 +1,24 @@
 "use client";
 
-import React, { useRef } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
-import { Environment, OrbitControls, Sky } from "@react-three/drei";
-import * as THREE from "three";
-import Cow from "./countryComponents/Cow";
-import Fence from "./countryComponents/Fence";
-import Tree from "./countryComponents/Tree";
+import React, { useRef } from 'react';
+import { Canvas, useFrame } from '@react-three/fiber';
+import { Environment, OrbitControls, Sky } from '@react-three/drei';
+import * as THREE from 'three';
+import Cow from './countryComponents/Cow';
+import Fence from './countryComponents/Fence';
+import Tree from './countryComponents/Tree';
+import StatsHUD from './StatsHUD';
 //import Canvas from "@react-three/fiber";
 
 // Main farm scene
 export default function FarmScene() {
   return (
-    <div style={{ width: "100%", height: "100vh", background: "#87ceeb" }}>
-      <Canvas camera={{ position: [8, 6, 8], fov: 60 }} shadows>
+    <div style={{ width: '100%', height: '100vh', background: '#87ceeb', position: 'relative' }}>
+      <StatsHUD />
+      <Canvas
+        camera={{ position: [8, 6, 8], fov: 60 }}
+        shadows
+      >
         {/* Lighting */}
         <ambientLight intensity={0.5} />
         <directionalLight
