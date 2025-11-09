@@ -13,6 +13,7 @@ var crypto = require('crypto');
 var cors = require('cors');
 var querystring = require('querystring');
 var cookieParser = require('cookie-parser');
+var db = require('./db');
 
 const corsOptions = {
   origin: function(origin, callback) {
@@ -58,7 +59,14 @@ var app = express();
 
 app.use(express.static(__dirname + '/public'))
    .use(cors(corsOptions))
-   .use(cookieParser());
+   .use(cookieParser())
+   .use(express.json());
+
+// Initialize database
+db.initializeDatabase().catch(err => {
+  console.error('Failed to initialize database:', err);
+  process.exit(1);
+});
 
 app.get('/login', function(req, res) {
 
@@ -142,9 +150,18 @@ app.get('/callback', function(req, res) {
         };
 
         // use the access token to access the Spotify Web API
-        request.get(options, function(error, response, body) {
-          if (!error) {
+        request.get(options, async function(error, response, body) {
+          if (!error && body.id) {
             console.log('User profile fetched successfully:', body.display_name);
+
+            // Store/update user mood in database
+            try {
+              const moodRecord = await db.upsertUserMood(body.id, null);
+              console.log('User mood record created/updated:', moodRecord);
+            } catch (dbError) {
+              console.error('Error storing user mood:', dbError);
+              // Don't fail the login flow if database operation fails
+            }
           } else {
             console.error('Error fetching user profile:', error);
           }
@@ -196,6 +213,86 @@ app.get('/refresh_token', function(req, res) {
       });
     }
   });
+});
+
+// API endpoint to update user mood
+app.post('/api/mood', async function(req, res) {
+  try {
+    const { spotify_user_id, emotion } = req.body;
+
+    if (!spotify_user_id) {
+      return res.status(400).json({ error: 'spotify_user_id is required' });
+    }
+
+    const moodRecord = await db.upsertUserMood(spotify_user_id, emotion || null);
+    res.json({
+      success: true,
+      data: moodRecord
+    });
+  } catch (error) {
+    console.error('Error updating mood:', error);
+    res.status(500).json({ error: 'Failed to update mood' });
+  }
+});
+
+// API endpoint to update user mood (always updates to current mood)
+app.post('/api/mood/store-if-empty', async function(req, res) {
+  try {
+    const { spotify_user_id, emotion } = req.body;
+
+    if (!spotify_user_id) {
+      return res.status(400).json({ error: 'spotify_user_id is required' });
+    }
+
+    if (!emotion) {
+      return res.status(400).json({ error: 'emotion is required' });
+    }
+
+    // Always update with the new emotion (stores previous emotion when fetched)
+    const moodRecord = await db.upsertUserMood(spotify_user_id, emotion);
+    res.json({
+      success: true,
+      data: moodRecord,
+      message: 'Mood updated successfully'
+    });
+  } catch (error) {
+    console.error('Error storing mood:', error);
+    res.status(500).json({ error: 'Failed to store mood' });
+  }
+});
+
+// API endpoint to get user mood
+app.get('/api/mood/:spotify_user_id', async function(req, res) {
+  try {
+    const { spotify_user_id } = req.params;
+    const moodRecord = await db.getUserMood(spotify_user_id);
+
+    if (!moodRecord) {
+      return res.status(404).json({ error: 'User mood not found' });
+    }
+
+    res.json({
+      success: true,
+      data: moodRecord
+    });
+  } catch (error) {
+    console.error('Error fetching mood:', error);
+    res.status(500).json({ error: 'Failed to fetch mood' });
+  }
+});
+
+// API endpoint to get all moods
+app.get('/api/moods', async function(req, res) {
+  try {
+    const moods = await db.getAllUserMoods();
+    res.json({
+      success: true,
+      data: moods
+    });
+  } catch (error) {
+    console.error('Error fetching all moods:', error);
+    res.status(500).json({ error: 'Failed to fetch moods' });
+  }
 });
 
 // Last.fm API proxy endpoint to avoid CORS issues

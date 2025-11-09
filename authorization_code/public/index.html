@@ -595,6 +595,16 @@
                  'malicious', 'cruel', 'ruthless', 'merciless', 'unforgiving',
                  'metal', 'hardcore', 'punk', 'industrial', 'rage rap', 'trap metal'],
           weight: 1.0
+        },
+        'romantic': {
+          tags: ['romantic', 'romance', 'love', 'tender', 'intimate', 'sensual',
+                 'passionate', 'affectionate', 'caring', 'warm', 'sweet', 'soft',
+                 'emotional', 'heartfelt', 'sincere', 'sentimental', 'nostalgic',
+                 'beautiful', 'lush', 'rich', 'romantic pop', 'soul', 'r&b',
+                 'slow', 'ballad', 'rnb', 'indie pop', 'bedroom pop',
+                 'lovesick', 'longing', 'yearning', 'desire', 'attraction',
+                 'obsessive', 'dependent', 'devoted', 'adoring', 'enamored'],
+          weight: 1.0
         }
       };
 
@@ -776,7 +786,8 @@
         const WEAK_DESCRIPTORS = [
           'melancholy', 'melancholic', 'emotional', 'moody', 'nostalgic', 'nostalgia',
           'introspective', 'atmospheric', 'dreamy', 'ethereal', 'contemplative',
-          'bittersweet', 'wistful', 'poignant', 'haunting', 'brooding'
+          'bittersweet', 'wistful', 'poignant', 'haunting', 'brooding',
+          'tender', 'intimate', 'sensual', 'affectionate', 'sentimental'
         ];
 
         const GENRE_TAGS = [
@@ -784,7 +795,8 @@
           'k-pop', 'kpop', 'funk', 'hyperpop',
           'ambient', 'downtempo', 'lofi', 'lo-fi', 'bossa nova', 'jazz', 'classical',
           'sad rap', 'indie folk', 'dream pop', 'shoegaze', 'soft rock', 'chamber pop',
-          'metal', 'hardcore', 'punk', 'industrial', 'rage rap', 'trap metal', 'emo'
+          'metal', 'hardcore', 'punk', 'industrial', 'rage rap', 'trap metal', 'emo',
+          'romantic pop', 'soul', 'r&b', 'rnb', 'indie pop', 'bedroom pop', 'ballad'
         ];
 
         function isGenreTag(tagName) {
@@ -954,6 +966,12 @@
               emoji: '😤',
               progressType: 'danger'
             },
+            'romantic': {
+              category: 'Romantic & Intimate',
+              description: 'Your music taste is tender and romantic, perfect for heartfelt moments. 💕',
+              emoji: '😍',
+              progressType: 'success'
+            },
             'unknown': {
               category: 'Mixed Vibes',
               description: 'Your music taste is diverse and hard to categorize! 🎵',
@@ -1051,6 +1069,7 @@
             var worldPath = getMoodWorldPath(moodResult.mood);
             var queryParams = new URLSearchParams({
               mood: moodResult.mood,
+              moodKey: moodResult.mood,
               confidence: moodResult.confidence,
               category: moodCategory.category,
               tracksAnalyzed: trackAnalyses.length,
@@ -1072,12 +1091,13 @@
         // Map mood to world path
         function getMoodWorldPath(mood) {
           var worldPaths = {
-            'happy': 'http://localhost:3000/cyber-city',        // Cyber City - EDM / Electronic
-            'relaxing': 'http://localhost:3000/enchanted-forest', // Enchanted Forest - Indie / Folk
-            'sad': 'http://localhost:3000/farm',                 // Jazz Lounge / Farm - Jazz / Blues (Melancholic)
-            'energetic': 'http://localhost:3000/cyber-city',     // Cyber City - EDM / Electronic
-            'angry': 'http://localhost:3000/concert-hall',       // Grand Concert Hall - Classical (intense)
-            'unknown': 'http://localhost:3000/farm'              // Default to farm
+            'happy': 'http://localhost:3000/farm',              // Farm - Happy
+            'relaxing': 'http://localhost:3000/camp',           // Camp - Relaxing
+            'sad': 'http://localhost:3000/beach',               // Beach - Sad (placeholder)
+            'energetic': 'http://localhost:3000/beach',         // Beach - Energetic
+            'angry': 'http://localhost:3000/inferno',           // Inferno - Angry
+            'romantic': 'http://localhost:3000/beach',          // Beach - Romantic (placeholder)
+            'unknown': 'http://localhost:3000/camp'             // Default to camp
           };
 
           return worldPaths[mood] || worldPaths['unknown'];

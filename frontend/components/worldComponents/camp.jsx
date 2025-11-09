@@ -14,12 +14,51 @@ import { BBQ } from "./campComponents/bbq";
 
 import * as THREE from "three";
 import { extend } from "@react-three/fiber";
+import { useEffect, useRef } from "react";
 extend({ Color: THREE.Color, Fog: THREE.Fog });
+
+// Audio component for ambient sounds
+function AmbientSounds() {
+  const fireAudioRef = useRef(null);
+  const nightAudioRef = useRef(null);
+
+  useEffect(() => {
+    // Create and setup fire sound
+    const fireAudio = new Audio("/sounds/fire.mp3");
+    fireAudio.loop = true;
+    fireAudio.volume = 0.5;
+    fireAudioRef.current = fireAudio;
+
+    // Create and setup night sound
+    const nightAudio = new Audio("/sounds/night.m4a");
+    nightAudio.loop = true;
+    nightAudio.volume = 0.3;
+    nightAudioRef.current = nightAudio;
+
+    // Play both sounds
+    fireAudio
+      .play()
+      .catch((err) => console.log("Fire audio autoplay prevented:", err));
+    nightAudio
+      .play()
+      .catch((err) => console.log("Night audio autoplay prevented:", err));
+
+    // Cleanup function
+    return () => {
+      fireAudio.pause();
+      fireAudio.currentTime = 0;
+      nightAudio.pause();
+      nightAudio.currentTime = 0;
+    };
+  }, []);
+
+  return null;
+}
 
 function Camp() {
   // Generate tree positions
   const treePositions = [];
-  for (let i = 0; i < 100; i++) {
+  for (let i = 0; i < 40; i++) {
     let x, z;
     do {
       x = (Math.random() - 0.5) * 19;
@@ -29,7 +68,7 @@ function Camp() {
     treePositions.push({
       x,
       z,
-      scale: 0.8 + Math.random() * 0.6,
+      scale: 3,
       rotation: Math.random() * Math.PI * 2,
     });
   }
@@ -58,6 +97,9 @@ function Camp() {
 
   return (
     <>
+      {/* Ambient sounds */}
+      <AmbientSounds />
+
       {/* Brighter dark blue night sky */}
       <color attach="background" args={["#1a2a4a"]} />
 
@@ -106,7 +148,7 @@ function Camp() {
       {treePositions.map((pos, index) => (
         <Tree
           key={`tree-${index}`}
-          position={[pos.x, 0, pos.z]}
+          position={[pos.x, 1.5, pos.z]}
           scale={pos.scale}
           rotation={[0, pos.rotation, 0]}
         />
@@ -133,6 +175,14 @@ function Camp() {
         castShadow
         shadow-mapSize-width={2048}
         shadow-mapSize-height={2048}
+      />
+
+      {/* Lightning effect - optional point light */}
+      <pointLight
+        position={[0, 30, 0]}
+        intensity={0.2}
+        distance={100}
+        color="#aaccff"
       />
 
       {/* Campfire glow - point light at campfire position */}
