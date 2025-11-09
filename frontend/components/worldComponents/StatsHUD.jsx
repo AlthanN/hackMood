@@ -1,18 +1,36 @@
 "use client"
 
 import { useEffect, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
+
+const moodToWorldMap = {
+  happy: '/farm',
+  relaxing: '/camp',
+  sad: '/city',
+  energetic: '/beach',
+  angry: '/inferno',
+  romantic: '/romantic',
+  unknown: '/camp',
+};
 
 export default function StatsHUD() {
   const [moodData, setMoodData] = useState(null);
   const [tracksData, setTracksData] = useState(null);
   const [expandedMood, setExpandedMood] = useState(true);
   const [expandedTracks, setExpandedTracks] = useState(true);
+  const [oldMood, setOldMood] = useState(null);
+  const [loadingOldMood, setLoadingOldMood] = useState(false);
+  const [spotifyUserId, setSpotifyUserId] = useState(null);
+  const [searchInput, setSearchInput] = useState('');
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [searchError, setSearchError] = useState('');
   const searchParams = useSearchParams();
+  const router = useRouter();
 
   useEffect(() => {
     // Try to get mood data from URL query parameters first
     const moodFromUrl = searchParams.get('mood');
+    const moodKeyFromUrl = searchParams.get('moodKey') || moodFromUrl; // Use moodKey if available, fall back to mood
     const accessToken = searchParams.get('accessToken');
 
     // Store access token in localStorage if provided in URL
@@ -34,7 +52,8 @@ export default function StatsHUD() {
       }
 
       const moodData = {
-        mood: searchParams.get('mood'),
+        mood: moodKeyFromUrl,
+        moodKey: moodKeyFromUrl,
         confidence: parseInt(searchParams.get('confidence')) || 0,
         category: searchParams.get('category') || 'Unknown',
         tracksAnalyzed: parseInt(searchParams.get('tracksAnalyzed')) || 0,
@@ -43,8 +62,12 @@ export default function StatsHUD() {
       };
       setMoodData(moodData);
 
-      // Fetch recently listened tracks
+      // Store current mood in database if user has no mood stored yet
+      storeCurrentMoodIfEmpty(moodData.moodKey);
+
+      // Fetch recently listened tracks and old mood
       fetchRecentlyListenedTracks();
+      fetchOldMood();
     } else {
       // Fallback to localStorage if URL params not available
       try {
@@ -58,6 +81,150 @@ export default function StatsHUD() {
       }
     }
   }, [searchParams]);
+
+  const fetchOldMood = async () => {
+    try {
+      setLoadingOldMood(true);
+      const accessToken = localStorage.getItem('spotify_access_token');
+
+      if (!accessToken) {
+        console.log('No access token for fetching old mood');
+        return;
+      }
+
+      // Get user profile to get spotify_user_id
+      const userResponse = await fetch('https://api.spotify.com/v1/me', {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        }
+      });
+
+      if (!userResponse.ok) {
+        console.error('Failed to fetch user profile');
+        return;
+      }
+
+      const userData = await userResponse.json();
+      const spotifyUserId = userData.id;
+      setSpotifyUserId(spotifyUserId);
+
+      // Fetch old mood from backend
+      const moodResponse = await fetch(`http://localhost:8888/api/mood/${spotifyUserId}`);
+
+      if (moodResponse.ok) {
+        const moodData = await moodResponse.json();
+        if (moodData.data && moodData.data.emotion) {
+          setOldMood(moodData.data.emotion);
+          console.log('Old mood fetched:', moodData.data.emotion);
+        }
+      } else {
+        console.log('No old mood found in database');
+      }
+    } catch (error) {
+      console.error('Error fetching old mood:', error);
+    } finally {
+      setLoadingOldMood(false);
+    }
+  };
+
+  const storeCurrentMoodIfEmpty = async (currentMood) => {
+    try {
+      const accessToken = localStorage.getItem('spotify_access_token');
+      if (!accessToken || !currentMood) {
+        return;
+      }
+
+      // Get user ID from Spotify API
+      const userResponse = await fetch('https://api.spotify.com/v1/me', {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        }
+      });
+
+      if (!userResponse.ok) {
+        console.log('Could not fetch user ID for mood storage');
+        return;
+      }
+
+      const userData = await userResponse.json();
+      const spotifyUserId = userData.id;
+
+      // Call backend endpoint to store mood only if it's empty
+      const response = await fetch('http://localhost:8888/api/mood/store-if-empty', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          spotify_user_id: spotifyUserId,
+          emotion: currentMood
+        })
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log('Mood storage result:', result.message);
+      } else {
+        console.error('Failed to store mood');
+      }
+    } catch (error) {
+      console.error('Error storing current mood:', error);
+    }
+  };
+
+  const handleVisitPreviousMood = () => {
+    if (!oldMood) {
+      console.log('No previous mood available');
+      return;
+    }
+
+    const worldRoute = moodToWorldMap[oldMood.toLowerCase()] || '/camp';
+    console.log(`Navigating to world for previous mood: ${oldMood} (route: ${worldRoute})`);
+    router.push(worldRoute);
+  };
+
+  const handleSearchUser = async (e) => {
+    e.preventDefault();
+
+    if (!searchInput.trim()) {
+      setSearchError('Please enter a Spotify user ID');
+      return;
+    }
+
+    setSearchLoading(true);
+    setSearchError('');
+
+    try {
+      // Query the backend API for the user's mood
+      const response = await fetch(`http://localhost:8888/api/mood/${searchInput.trim()}`);
+
+      if (!response.ok) {
+        if (response.status === 404) {
+          setSearchError('User not found');
+        } else {
+          setSearchError('Error fetching user mood');
+        }
+        setSearchLoading(false);
+        return;
+      }
+
+      const moodData = await response.json();
+
+      if (moodData.data && moodData.data.emotion) {
+        const userMood = moodData.data.emotion.toLowerCase();
+        const worldRoute = moodToWorldMap[userMood] || '/camp';
+        console.log(`Navigating to world for user ${searchInput}: ${userMood} (route: ${worldRoute})`);
+        router.push(worldRoute);
+      } else {
+        setSearchError('User has no mood data');
+      }
+    } catch (error) {
+      console.error('Error searching user:', error);
+      setSearchError('Failed to search user');
+    } finally {
+      setSearchLoading(false);
+    }
+  };
 
   const fetchRecentlyListenedTracks = async () => {
     try {
@@ -121,77 +288,122 @@ export default function StatsHUD() {
         }
       `}</style>
       <div style={styles.hudContainer}>
-        {/* Left side - Mood Analysis with distribution */}
-      <div style={styles.leftPanel}>
-        <div
-          style={{
-            ...styles.panel,
-            ...styles.leftPanelContent,
-            ...(expandedMood ? {} : styles.panelCollapsed)
-          }}
-          onClick={() => setExpandedMood(!expandedMood)}
-        >
-          <div style={styles.title}>🎵 Mood Analysis</div>
-          {expandedMood && (
-            <>
-              <div style={styles.stat}>
-                <span style={styles.label}>Detected Mood:</span>
-                <span style={styles.value}>{moodData.category}</span>
-              </div>
-              <div style={styles.stat}>
-                <span style={styles.label}>Confidence:</span>
-                <span style={styles.value}>{moodData.confidence}%</span>
-              </div>
+        {/* Left side - Previous Mood Button and Mood Analysis with distribution */}
+        <div style={styles.leftPanelContainer}>
+          <div style={styles.leftPanel}>
+            <div
+              style={{
+                ...styles.panel,
+                ...styles.leftPanelContent,
+                ...(expandedMood ? {} : styles.panelCollapsed)
+              }}
+              onClick={() => setExpandedMood(!expandedMood)}
+            >
+              <div style={styles.title}>Mood Analysis</div>
+              {expandedMood && (
+                <>
+                  <div style={styles.stat}>
+                    <span style={styles.label}>Detected Mood:</span>
+                    <span style={styles.value}>{moodData.category}</span>
+                  </div>
+                  <div style={styles.stat}>
+                    <span style={styles.label}>Confidence:</span>
+                    <span style={styles.value}>{moodData.confidence}%</span>
+                  </div>
 
-              {/* Mood Distribution */}
-              {moodData.distribution && moodData.distribution.length > 0 && (
-                <div style={styles.distributionSection}>
-                  <div style={styles.distributionTitle}>Mood Breakdown</div>
-                  {moodData.distribution.map((item, index) => (
-                    <div key={index} style={styles.distributionItem}>
-                      <span style={styles.moodLabel}>{item.mood}</span>
-                      <span style={styles.moodPercentage}>{item.percentage}%</span>
+                  {/* Mood Distribution */}
+                  {moodData.distribution && moodData.distribution.length > 0 && (
+                    <div style={styles.distributionSection}>
+                      <div style={styles.distributionTitle}>Mood Breakdown</div>
+                      {moodData.distribution.map((item, index) => (
+                        <div key={index} style={styles.distributionItem}>
+                          <span style={styles.moodLabel}>{item.mood}</span>
+                          <span style={styles.moodPercentage}>{item.percentage}%</span>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
+                  )}
+                </>
               )}
-            </>
+            </div>
+          </div>
+
+          {/* Previous Mood Button - Right of Mood Analysis */}
+          {oldMood && (
+            <button
+              onClick={handleVisitPreviousMood}
+              style={styles.visitPreviousMoodButton}
+              title={`Enter your ${oldMood} world`}
+            >
+              Previous Mood: {oldMood.charAt(0).toUpperCase() + oldMood.slice(1)}
+            </button>
           )}
         </div>
-      </div>
 
-      {/* Right side - Recently Listened Tracks */}
-      <div style={styles.rightPanel}>
-        <div
-          style={{
-            ...styles.panel,
-            ...(expandedTracks ? styles.rightPanelContent : styles.rightPanelContentCollapsed)
-          }}
-          onClick={() => setExpandedTracks(!expandedTracks)}
-        >
-          <div style={styles.title}>🎧 Top 50 Tracks</div>
+        {/* Right side - Search Bar and Recently Listened Tracks */}
+        <div style={styles.rightPanelContainer}>
+          {/* Search Bar - Left of Top 50 Tracks */}
+          <form onSubmit={handleSearchUser} style={styles.searchBarContainer}>
+            <input
+              type="text"
+              value={searchInput}
+              onChange={(e) => {
+                setSearchInput(e.target.value);
+                setSearchError('');
+              }}
+              placeholder="Enter Spotify user ID"
+              style={styles.searchInput}
+              disabled={searchLoading}
+            />
+            <button
+              type="submit"
+              style={styles.searchButton}
+              disabled={searchLoading}
+            >
+              {searchLoading ? 'Searching...' : 'Search'}
+            </button>
+            {searchError && <div style={styles.searchError}>{searchError}</div>}
+          </form>
 
-          {expandedTracks && (
-            <>
-              {tracksData && tracksData.length > 0 ? (
-                <div className="stats-tracks-list" style={styles.tracksList}>
-                  {tracksData.map((track, index) => (
-                    <div key={index} style={styles.trackItem}>
-                      <span style={styles.trackNumber}>{index + 1}.</span>
-                      <div style={styles.trackInfo}>
-                        <div style={styles.trackName}>{track.name}</div>
-                        <div style={styles.trackArtist}>{track.artist}</div>
-                      </div>
+          <div style={styles.rightPanel}>
+            <div
+              style={{
+                ...styles.panel,
+                ...(expandedTracks ? styles.rightPanelContent : styles.rightPanelContentCollapsed)
+              }}
+              onClick={() => setExpandedTracks(!expandedTracks)}
+            >
+              <div style={styles.title}>Top 50 Tracks</div>
+
+              {expandedTracks && (
+                <>
+                  {tracksData && tracksData.length > 0 ? (
+                    <div className="stats-tracks-list" style={styles.tracksList}>
+                      {tracksData.map((track, index) => (
+                        <div key={index} style={styles.trackItem}>
+                          <span style={styles.trackNumber}>{index + 1}.</span>
+                          <div style={styles.trackInfo}>
+                            <div style={styles.trackName}>{track.name}</div>
+                            <div style={styles.trackArtist}>{track.artist}</div>
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <div style={styles.loadingText}>Loading tracks...</div>
+                  ) : (
+                    <div style={styles.loadingText}>Loading tracks...</div>
+                  )}
+                </>
               )}
-            </>
-          )}
+            </div>
+          </div>
         </div>
-      </div>
+
+      {/* Spotify User ID - Bottom Right */}
+      {spotifyUserId && (
+        <div style={styles.spotifyUserIdContainer}>
+          <span style={styles.spotifyUserIdText}>{spotifyUserId}</span>
+        </div>
+      )}
     </div>
     </>
   );
@@ -212,8 +424,20 @@ const styles = {
     padding: '20px',
     boxSizing: 'border-box',
   },
+  leftPanelContainer: {
+    pointerEvents: 'auto',
+    display: 'flex',
+    gap: '12px',
+    alignItems: 'flex-start',
+  },
   leftPanel: {
     pointerEvents: 'auto',
+  },
+  rightPanelContainer: {
+    pointerEvents: 'auto',
+    display: 'flex',
+    gap: '12px',
+    alignItems: 'flex-start',
   },
   rightPanel: {
     pointerEvents: 'auto',
@@ -252,7 +476,7 @@ const styles = {
     height: 'fit-content',
   },
   title: {
-    fontSize: '14px',
+    fontSize: '16px',
     fontWeight: '700',
     color: '#000',
     marginBottom: '12px',
@@ -353,5 +577,77 @@ const styles = {
     color: 'rgba(0, 0, 0, 0.6)',
     fontSize: '12px',
     marginTop: '12px',
+  },
+  visitPreviousMoodButton: {
+    pointerEvents: 'auto',
+    padding: '12px 24px',
+    background: 'rgba(255, 255, 255, 0.1)',
+    border: '2px solid rgba(255, 255, 255, 0.3)',
+    borderRadius: '12px',
+    color: '#000',
+    fontSize: '14px',
+    fontWeight: '600',
+    cursor: 'pointer',
+    backdropFilter: 'blur(10px)',
+    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+    transition: 'all 0.3s ease',
+    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto',
+    whiteSpace: 'nowrap',
+  },
+  spotifyUserIdContainer: {
+    position: 'fixed',
+    bottom: '20px',
+    right: '20px',
+    zIndex: 100,
+    pointerEvents: 'auto',
+  },
+  spotifyUserIdText: {
+    color: '#fff',
+    fontSize: '12px',
+    fontWeight: '500',
+    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto',
+  },
+  searchBarContainer: {
+    pointerEvents: 'auto',
+    display: 'flex',
+    gap: '8px',
+    alignItems: 'flex-start',
+    flexDirection: 'column',
+  },
+  searchInput: {
+    padding: '10px 16px',
+    fontSize: '14px',
+    border: '2px solid rgba(255, 255, 255, 0.3)',
+    borderRadius: '8px',
+    background: 'rgba(255, 255, 255, 0.1)',
+    backdropFilter: 'blur(10px)',
+    color: '#fff',
+    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto',
+    width: '220px',
+    transition: 'all 0.3s ease',
+    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+  },
+  searchButton: {
+    padding: '10px 24px',
+    fontSize: '14px',
+    fontWeight: '600',
+    border: 'none',
+    borderRadius: '8px',
+    background: 'rgba(29, 185, 84, 0.8)',
+    color: '#fff',
+    cursor: 'pointer',
+    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto',
+    transition: 'all 0.3s ease',
+    backdropFilter: 'blur(10px)',
+    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+    whiteSpace: 'nowrap',
+  },
+  searchError: {
+    color: '#ff6b6b',
+    fontSize: '12px',
+    fontWeight: '500',
+    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto',
+    textAlign: 'center',
+    maxWidth: '220px',
   },
 };

@@ -5,6 +5,7 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Sky, Cloud } from '@react-three/drei';
 import * as THREE from 'three';
 import { Boulder } from './happyComponents/Boulder';
+import StatsHUD from './StatsHUD';
 import { Boulder2 } from './happyComponents/Boulder2';
 import { Seagull } from './happyComponents/Seagull';
 import { BBQ } from './happyComponents/BBQ';
@@ -238,6 +239,7 @@ function Rock({ position, scale }) {
 export default function BeachScene() {
   return (
     <div style={{ width: '100%', height: '100vh' }}>
+      <StatsHUD />
       <Canvas
         camera={{ position: [10, 8, 15], fov: 60 }}
         shadows
