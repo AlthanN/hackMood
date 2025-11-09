@@ -271,7 +271,7 @@ export default function BeachScene() {
       <AmbientSounds></AmbientSounds>
       <StatsHUD />
       <Canvas
-        camera={{ position: [10, 8, 15], fov: 60 }}
+        camera={{ position: [40, 5, -30], fov: 60 }}
         shadows
       >
         {/* Sky */}
